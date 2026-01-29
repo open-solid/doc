@@ -18,10 +18,15 @@ final readonly class ParameterOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'type' => $this->type,
-            'class' => $this->class,
         ];
+
+        if (!ScalarType::is($this->type)) {
+            $data['class'] = $this->class;
+        }
+
+        return $data;
     }
 }

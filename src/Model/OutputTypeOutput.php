@@ -17,9 +17,12 @@ final readonly class OutputTypeOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
-            'type' => $this->type,
-            'class' => $this->class,
-        ];
+        $data = ['type' => $this->type];
+
+        if (!ScalarType::is($this->type)) {
+            $data['class'] = $this->class;
+        }
+
+        return $data;
     }
 }

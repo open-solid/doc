@@ -1,0 +1,130 @@
+{
+    "contexts": [
+        {
+            "name": "Billing",
+            "modules": [
+                {
+                    "name": "Invoice",
+                    "commands": [
+                        {
+                            "name": "CreateInvoice",
+                            "class": "App\\Billing\\Invoice\\Application\\Create\\CreateInvoice",
+                            "description": "Creates a new invoice for a customer.",
+                            "input": [
+                                {
+                                    "name": "customerId",
+                                    "type": "InvoiceCustomerId",
+                                    "class": "App\\Billing\\Invoice\\Domain\\Model\\InvoiceCustomerId"
+                                },
+                                {
+                                    "name": "amount",
+                                    "type": "int"
+                                },
+                                {
+                                    "name": "currency",
+                                    "type": "string"
+                                }
+                            ],
+                            "output": {
+                                "type": "InvoiceId",
+                                "class": "App\\Billing\\Invoice\\Domain\\Model\\InvoiceId"
+                            }
+                        }
+                    ],
+                    "queries": [
+                        {
+                            "name": "FindInvoice",
+                            "class": "App\\Billing\\Invoice\\Application\\Find\\FindInvoice",
+                            "description": "Retrieves an invoice by its identifier.",
+                            "input": [
+                                {
+                                    "name": "id",
+                                    "type": "InvoiceId",
+                                    "class": "App\\Billing\\Invoice\\Domain\\Model\\InvoiceId"
+                                }
+                            ],
+                            "output": {
+                                "type": "Invoice",
+                                "class": "App\\Billing\\Invoice\\Domain\\Model\\Invoice"
+                            }
+                        }
+                    ],
+                    "domainEvents": [
+                        {
+                            "name": "InvoiceCreated",
+                            "class": "App\\Billing\\Invoice\\Domain\\Event\\InvoiceCreated",
+                            "description": "Emitted when a new invoice is created.",
+                            "properties": [
+                                {
+                                    "name": "invoiceId",
+                                    "type": "string",
+                                    "description": "The unique identifier of the invoice."
+                                },
+                                {
+                                    "name": "customerId",
+                                    "type": "string",
+                                    "description": "The customer who owns the invoice."
+                                },
+                                {
+                                    "name": "amount",
+                                    "type": "float",
+                                    "description": "The total amount of the invoice."
+                                }
+                            ]
+                        }
+                    ],
+                    "eventSubscribers": [
+                        {
+                            "name": "SendInvoiceEmailOnCreated",
+                            "class": "App\\Billing\\Invoice\\Infrastructure\\SendInvoiceEmailOnCreated",
+                            "description": "Sends an email notification when an invoice is created.",
+                            "event": "InvoiceCreated",
+                            "eventClass": "App\\Billing\\Invoice\\Domain\\Event\\InvoiceCreated"
+                        }
+                    ],
+                    "externalCalls": [
+                        {
+                            "type": "query",
+                            "source": "CreateInvoiceProcessor",
+                            "sourceClass": "App\\Billing\\Invoice\\Presentation\\Api\\Invoice\\Create\\CreateInvoiceProcessor",
+                            "name": "FindCustomer",
+                            "targetClass": "App\\Identity\\Customer\\Application\\Find\\FindCustomer",
+                            "targetContext": "Identity",
+                            "targetModule": "Customer"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Identity",
+            "modules": [
+                {
+                    "name": "Customer",
+                    "queries": [
+                        {
+                            "name": "FindCustomer",
+                            "class": "App\\Identity\\Customer\\Application\\Find\\FindCustomer",
+                            "description": "Retrieves a customer by their identifier.",
+                            "input": [
+                                {
+                                    "name": "id",
+                                    "type": "CustomerId",
+                                    "class": "App\\Identity\\Customer\\Domain\\Model\\CustomerId"
+                                }
+                            ],
+                            "output": {
+                                "type": "Customer",
+                                "class": "App\\Identity\\Customer\\Domain\\Model\\Customer"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "generatedAt": "2024-01-15T10:30:00+00:00",
+        "project": "test-project"
+    }
+}

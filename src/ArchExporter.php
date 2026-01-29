@@ -13,12 +13,12 @@ use OpenSolid\ArchViewer\Model\ArchOutput;
 use OpenSolid\ArchViewer\Model\ContextOutput;
 use OpenSolid\ArchViewer\Model\MetaOutput;
 use OpenSolid\ArchViewer\Model\ModuleOutput;
-use OpenSolid\ArchViewer\Scanner\ModuleScanner;
+use OpenSolid\ArchViewer\Scanner\ModuleScannerInterface;
 
 final readonly class ArchExporter
 {
     public function __construct(
-        private ModuleScanner $moduleScanner,
+        private ModuleScannerInterface $moduleScanner,
         private CommandExtractor $commandExtractor,
         private QueryExtractor $queryExtractor,
         private DomainEventExtractor $domainEventExtractor,

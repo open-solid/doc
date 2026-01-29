@@ -8,7 +8,7 @@ use OpenSolid\ArchViewer\Scanner\ModuleInfo;
 use OpenSolid\Core\Infrastructure\Symfony\Module\ModuleExtension;
 use Symfony\Component\Finder\Finder;
 
-final readonly class ModuleScanner
+final readonly class ModuleScanner implements ModuleScannerInterface
 {
     /**
      * Scans for modules by finding *Extension.php files that extend ModuleExtension.

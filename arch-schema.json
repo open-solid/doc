@@ -147,7 +147,7 @@
         "parameter": {
             "type": "object",
             "description": "A constructor parameter with name, type, and FQCN.",
-            "required": ["name", "type", "class"],
+            "required": ["name", "type"],
             "properties": {
                 "name": {
                     "type": "string",

@@ -25,7 +25,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenSolid\\ArchViewer\\Tests\\": "tests/"
+            "OpenSolid\\ArchViewer\\Tests\\": "tests/",
+            "App\\": "tests/Unit/Fixtures/src/"
         }
     }
 }
