@@ -19,54 +19,57 @@ final readonly class DocBlockParser
     /**
      * @param \ReflectionClass<object> $class
      */
-    public function getClassDescription(\ReflectionClass $class): string
+    public function getClassDescription(\ReflectionClass $class): ?string
     {
         $docComment = $class->getDocComment();
 
         if (false === $docComment) {
-            return '';
+            return null;
         }
 
         try {
             $docBlock = $this->docBlockFactory->create($docComment);
+            $summary = $docBlock->getSummary();
 
-            return $docBlock->getSummary();
+            return '' !== $summary ? $summary : null;
         } catch (\Throwable) {
-            return '';
+            return null;
         }
     }
 
-    public function getPropertyDescription(\ReflectionProperty $property): string
+    public function getPropertyDescription(\ReflectionProperty $property): ?string
     {
         $docComment = $property->getDocComment();
 
         if (false === $docComment) {
-            return '';
+            return null;
         }
 
         try {
             $docBlock = $this->docBlockFactory->create($docComment);
+            $summary = $docBlock->getSummary();
 
-            return $docBlock->getSummary();
+            return '' !== $summary ? $summary : null;
         } catch (\Throwable) {
-            return '';
+            return null;
         }
     }
 
-    public function getMethodDescription(\ReflectionMethod $method): string
+    public function getMethodDescription(\ReflectionMethod $method): ?string
     {
         $docComment = $method->getDocComment();
 
         if (false === $docComment) {
-            return '';
+            return null;
         }
 
         try {
             $docBlock = $this->docBlockFactory->create($docComment);
+            $summary = $docBlock->getSummary();
 
-            return $docBlock->getSummary();
+            return '' !== $summary ? $summary : null;
         } catch (\Throwable) {
-            return '';
+            return null;
         }
     }
 }

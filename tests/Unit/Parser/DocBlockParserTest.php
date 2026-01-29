@@ -28,13 +28,13 @@ final class DocBlockParserTest extends TestCase
     }
 
     #[Test]
-    public function itReturnsEmptyStringForClassWithoutDocBlock(): void
+    public function itReturnsNullForClassWithoutDocBlock(): void
     {
         $class = new \ReflectionClass(ClassWithoutDocBlock::class);
 
         $description = $this->parser->getClassDescription($class);
 
-        self::assertSame('', $description);
+        self::assertNull($description);
     }
 
     #[Test]
@@ -49,14 +49,14 @@ final class DocBlockParserTest extends TestCase
     }
 
     #[Test]
-    public function itReturnsEmptyStringForPropertyWithoutDocBlock(): void
+    public function itReturnsNullForPropertyWithoutDocBlock(): void
     {
         $class = new \ReflectionClass(ClassWithDocBlock::class);
         $property = $class->getProperty('undocumentedProperty');
 
         $description = $this->parser->getPropertyDescription($property);
 
-        self::assertSame('', $description);
+        self::assertNull($description);
     }
 
     #[Test]
@@ -71,14 +71,14 @@ final class DocBlockParserTest extends TestCase
     }
 
     #[Test]
-    public function itReturnsEmptyStringForMethodWithoutDocBlock(): void
+    public function itReturnsNullForMethodWithoutDocBlock(): void
     {
         $class = new \ReflectionClass(ClassWithDocBlock::class);
         $method = $class->getMethod('undocumentedMethod');
 
         $description = $this->parser->getMethodDescription($method);
 
-        self::assertSame('', $description);
+        self::assertNull($description);
     }
 }
 

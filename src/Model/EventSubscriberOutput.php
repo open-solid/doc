@@ -9,7 +9,7 @@ final readonly class EventSubscriberOutput implements \JsonSerializable
     public function __construct(
         public string $name,
         public string $class,
-        public string $description,
+        public ?string $description,
         public string $event,
         public string $eventClass,
     ) {
@@ -20,12 +20,18 @@ final readonly class EventSubscriberOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'class' => $this->class,
-            'description' => $this->description,
-            'event' => $this->event,
-            'eventClass' => $this->eventClass,
         ];
+
+        if (null !== $this->description) {
+            $data['description'] = $this->description;
+        }
+
+        $data['event'] = $this->event;
+        $data['eventClass'] = $this->eventClass;
+
+        return $data;
     }
 }

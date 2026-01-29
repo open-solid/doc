@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace OpenSolid\ArchViewer\Model;
 
-use OpenSolid\ArchViewer\Model\EventPropertyOutput;
-
 final readonly class DomainEventOutput implements \JsonSerializable
 {
     /**
@@ -14,7 +12,7 @@ final readonly class DomainEventOutput implements \JsonSerializable
     public function __construct(
         public string $name,
         public string $class,
-        public string $description,
+        public ?string $description,
         public array $properties,
     ) {
     }
@@ -24,11 +22,17 @@ final readonly class DomainEventOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'class' => $this->class,
-            'description' => $this->description,
-            'properties' => $this->properties,
         ];
+
+        if (null !== $this->description) {
+            $data['description'] = $this->description;
+        }
+
+        $data['properties'] = $this->properties;
+
+        return $data;
     }
 }

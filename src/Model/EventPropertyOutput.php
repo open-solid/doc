@@ -9,7 +9,7 @@ final readonly class EventPropertyOutput implements \JsonSerializable
     public function __construct(
         public string $name,
         public string $type,
-        public string $description,
+        public ?string $description,
     ) {
     }
 
@@ -18,10 +18,15 @@ final readonly class EventPropertyOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'type' => $this->type,
-            'description' => $this->description,
         ];
+
+        if (null !== $this->description) {
+            $data['description'] = $this->description;
+        }
+
+        return $data;
     }
 }

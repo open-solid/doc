@@ -15,7 +15,7 @@ final readonly class CommandOutput implements \JsonSerializable
     public function __construct(
         public string $name,
         public string $class,
-        public string $description,
+        public ?string $description,
         public array $input,
         public OutputTypeOutput $output,
     ) {
@@ -26,12 +26,18 @@ final readonly class CommandOutput implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return [
+        $data = [
             'name' => $this->name,
             'class' => $this->class,
-            'description' => $this->description,
-            'input' => $this->input,
-            'output' => $this->output,
         ];
+
+        if (null !== $this->description) {
+            $data['description'] = $this->description;
+        }
+
+        $data['input'] = $this->input;
+        $data['output'] = $this->output;
+
+        return $data;
     }
 }
