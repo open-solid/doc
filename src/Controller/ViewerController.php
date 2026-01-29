@@ -5,7 +5,7 @@ namespace OpenSolid\ArchViewer\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class HelloController
+class ViewerController
 {
     public function __invoke(Request $request): Response
     {

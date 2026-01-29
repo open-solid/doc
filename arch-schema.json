@@ -1,0 +1,314 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://club-api/arch-schema.json",
+    "title": "Architecture Schema",
+    "description": "Schema for validating the architecture definition of a DDD-based application.",
+    "type": "object",
+    "required": ["contexts", "meta"],
+    "properties": {
+        "contexts": {
+            "type": "array",
+            "description": "List of bounded contexts in the application.",
+            "items": {
+                "$ref": "#/$defs/context"
+            }
+        },
+        "meta": {
+            "$ref": "#/$defs/meta"
+        }
+    },
+    "$defs": {
+        "context": {
+            "type": "object",
+            "description": "A bounded context containing one or more modules.",
+            "required": ["name", "modules"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the bounded context."
+                },
+                "modules": {
+                    "type": "array",
+                    "description": "List of modules within the bounded context.",
+                    "items": {
+                        "$ref": "#/$defs/module"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "module": {
+            "type": "object",
+            "description": "A module within a bounded context.",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the module."
+                },
+                "commands": {
+                    "type": "array",
+                    "description": "List of commands in the module.",
+                    "items": {
+                        "$ref": "#/$defs/command"
+                    }
+                },
+                "queries": {
+                    "type": "array",
+                    "description": "List of queries in the module.",
+                    "items": {
+                        "$ref": "#/$defs/query"
+                    }
+                },
+                "domainEvents": {
+                    "type": "array",
+                    "description": "List of domain events in the module.",
+                    "items": {
+                        "$ref": "#/$defs/domainEvent"
+                    }
+                },
+                "eventSubscribers": {
+                    "type": "array",
+                    "description": "List of event subscribers in the module.",
+                    "items": {
+                        "$ref": "#/$defs/eventSubscriber"
+                    }
+                },
+                "externalCalls": {
+                    "type": "array",
+                    "description": "List of external calls to other modules/contexts.",
+                    "items": {
+                        "$ref": "#/$defs/externalCall"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "command": {
+            "type": "object",
+            "description": "A command representing a write operation.",
+            "required": ["name", "class", "description", "input", "output"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the command."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the command."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of what the command does."
+                },
+                "input": {
+                    "type": "array",
+                    "description": "Constructor parameters of the command.",
+                    "items": {
+                        "$ref": "#/$defs/parameter"
+                    }
+                },
+                "output": {
+                    "$ref": "#/$defs/outputType"
+                }
+            },
+            "additionalProperties": false
+        },
+        "query": {
+            "type": "object",
+            "description": "A query representing a read operation.",
+            "required": ["name", "class", "description", "input", "output"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the query."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the query."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of what the query returns."
+                },
+                "input": {
+                    "type": "array",
+                    "description": "Constructor parameters of the query.",
+                    "items": {
+                        "$ref": "#/$defs/parameter"
+                    }
+                },
+                "output": {
+                    "$ref": "#/$defs/outputType"
+                }
+            },
+            "additionalProperties": false
+        },
+        "parameter": {
+            "type": "object",
+            "description": "A constructor parameter with name, type, and FQCN.",
+            "required": ["name", "type", "class"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The parameter name."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type name (short form)."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the type."
+                }
+            },
+            "additionalProperties": false
+        },
+        "outputType": {
+            "type": "object",
+            "description": "The output type of a command or query.",
+            "required": ["type", "class"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "The type name (short form)."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the type."
+                }
+            },
+            "additionalProperties": false
+        },
+        "domainEvent": {
+            "type": "object",
+            "description": "A domain event emitted by an aggregate.",
+            "required": ["name", "class", "description", "properties"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the domain event."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the event."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of when the event is emitted."
+                },
+                "properties": {
+                    "type": "array",
+                    "description": "Properties carried by the event.",
+                    "items": {
+                        "$ref": "#/$defs/eventProperty"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "eventProperty": {
+            "type": "object",
+            "description": "A property of a domain event.",
+            "required": ["name", "type", "description"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The property name."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The property type."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of the property."
+                }
+            },
+            "additionalProperties": false
+        },
+        "eventSubscriber": {
+            "type": "object",
+            "description": "An event subscriber that reacts to domain events.",
+            "required": ["name", "class", "description", "event", "eventClass"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the event subscriber."
+                },
+                "class": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the subscriber."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of what the subscriber does."
+                },
+                "event": {
+                    "type": "string",
+                    "description": "The name of the event being handled."
+                },
+                "eventClass": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the event."
+                }
+            },
+            "additionalProperties": false
+        },
+        "externalCall": {
+            "type": "object",
+            "description": "A call to a command or query in another module/context.",
+            "required": ["type", "source", "sourceClass", "name", "targetClass", "targetContext", "targetModule"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["command", "query"],
+                    "description": "The type of external call (command or query)."
+                },
+                "source": {
+                    "type": "string",
+                    "description": "The name of the class making the external call."
+                },
+                "sourceClass": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the source."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the command or query being called."
+                },
+                "targetClass": {
+                    "type": "string",
+                    "description": "The fully qualified class name (FQCN) of the target command/query."
+                },
+                "targetContext": {
+                    "type": "string",
+                    "description": "The bounded context of the target."
+                },
+                "targetModule": {
+                    "type": "string",
+                    "description": "The module of the target."
+                }
+            },
+            "additionalProperties": false
+        },
+        "meta": {
+            "type": "object",
+            "description": "Metadata about the architecture file.",
+            "required": ["generatedAt", "project"],
+            "properties": {
+                "generatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp when the file was generated."
+                },
+                "project": {
+                    "type": "string",
+                    "description": "The project name."
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

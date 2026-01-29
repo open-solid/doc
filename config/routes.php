@@ -1,15 +1,12 @@
 <?php
 
-use OpenSolid\ArchViewer\Controller\HelloController;
+use OpenSolid\ArchViewer\Controller\ViewerController;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-/**
- * @link https://symfony.com/doc/current/bundles/best_practices.html#routing
- */
 return static function (RoutingConfigurator $routes): void {
     $routes
-        ->add('open_hello_controller', '/')
-            ->controller(HelloController::class)
+        ->add('arch_viewer_controller', '/arch')
+            ->controller(ViewerController::class)
             ->methods(['GET'])
     ;
 };
