@@ -140,6 +140,31 @@
                 <h2 class="text-xl font-semibold mb-6">Bounded Contexts</h2>
                 <div class="grid md:grid-cols-2 gap-6" data-contexts></div>
             </section>
+            <section class="mt-12">
+                <h2 class="text-xl font-semibold mb-6">Context Map</h2>
+                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                    <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-8 h-0.5 bg-cyan-500"></span>
+                                <span>ACL</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-8 h-0.5 bg-amber-500" style="background: repeating-linear-gradient(90deg, rgb(245 158 11) 0px, rgb(245 158 11) 6px, transparent 6px, transparent 12px);"></span>
+                                <span>Event-Driven</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-slate-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/></svg>
+                                <span>Drag contexts to reposition</span>
+                            </div>
+                        </div>
+                        <div id="context-map-filters" class="flex flex-wrap gap-3 text-sm"></div>
+                    </div>
+                    <div id="context-map-container" class="flex justify-center overflow-auto">
+                        <canvas id="context-map-canvas"></canvas>
+                    </div>
+                </div>
+            </section>
         </div>
     </template>
 
@@ -307,6 +332,400 @@
             `).join('');
 
             $('#content').replaceChildren(tpl);
+            initContextMap();
+        }
+
+        // Store context map state globally for persistence
+        let contextMapState = {
+            contextOffsets: {},
+            hiddenContexts: new Set(),
+            hiddenModules: new Set()
+        };
+
+        function initContextMap() {
+            const canvas = $('#context-map-canvas');
+            const filtersContainer = $('#context-map-filters');
+            if (!canvas) return;
+
+            // Destroy existing app if any
+            if (canvas._pixiApp) {
+                canvas._pixiApp.destroy(false);
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            // Build module positions and relationships
+            const modules = [];
+            const relationships = [];
+            const moduleIndex = {};
+
+            // Collect all modules
+            data.contexts.forEach(ctx => {
+                ctx.modules.forEach(mod => {
+                    const key = `${ctx.name}/${mod.name}`;
+                    moduleIndex[key] = modules.length;
+                    modules.push({ context: ctx.name, name: mod.name, key: key });
+                });
+            });
+
+            // Collect relationships from external calls (ACL)
+            data.contexts.forEach(ctx => {
+                ctx.modules.forEach(mod => {
+                    const sourceKey = `${ctx.name}/${mod.name}`;
+                    (mod.externalCalls || []).forEach(call => {
+                        const targetKey = `${call.targetContext}/${call.targetModule}`;
+                        if (moduleIndex[targetKey] !== undefined) {
+                            relationships.push({ from: sourceKey, to: targetKey, type: 'acl', label: 'ACL' });
+                        }
+                    });
+                });
+            });
+
+            // Collect relationships from event subscribers (Event-Driven)
+            data.contexts.forEach(ctx => {
+                ctx.modules.forEach(mod => {
+                    const subscriberKey = `${ctx.name}/${mod.name}`;
+                    (mod.eventSubscribers || []).forEach(sub => {
+                        for (const c of data.contexts) {
+                            for (const m of c.modules) {
+                                const emitterKey = `${c.name}/${m.name}`;
+                                if (emitterKey === subscriberKey) continue;
+                                const emitsEvent = (m.domainEvents || []).some(e => e.class === sub.eventClass);
+                                if (emitsEvent && !relationships.some(r => r.from === emitterKey && r.to === subscriberKey && r.type === 'event')) {
+                                    relationships.push({ from: emitterKey, to: subscriberKey, type: 'event', label: 'Event' });
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Build context groups
+            const contextGroups = {};
+            modules.forEach(mod => {
+                if (!contextGroups[mod.context]) contextGroups[mod.context] = [];
+                contextGroups[mod.context].push(mod);
+            });
+            const contextNames = Object.keys(contextGroups);
+
+            // Render filter controls using DOM methods (safe from XSS)
+            if (filtersContainer) {
+                filtersContainer.textContent = '';
+                contextNames.forEach(ctxName => {
+                    const ctxModules = contextGroups[ctxName];
+                    const isCtxHidden = contextMapState.hiddenContexts.has(ctxName);
+
+                    const details = document.createElement('details');
+                    details.className = 'relative';
+                    if (!isCtxHidden) details.open = true;
+
+                    const summary = document.createElement('summary');
+                    summary.className = 'flex items-center gap-2 cursor-pointer select-none';
+
+                    const ctxCheckbox = document.createElement('input');
+                    ctxCheckbox.type = 'checkbox';
+                    ctxCheckbox.checked = !isCtxHidden;
+                    ctxCheckbox.className = 'rounded border-slate-300 dark:border-slate-600 text-primary-500 focus:ring-primary-500';
+                    ctxCheckbox.dataset.filterContext = ctxName;
+
+                    const ctxLabel = document.createElement('span');
+                    ctxLabel.className = 'font-medium text-slate-700 dark:text-slate-300';
+                    ctxLabel.textContent = ctxName;
+
+                    const chevron = document.createElement('svg');
+                    chevron.className = 'h-4 w-4 text-slate-400 chevron transition-transform';
+                    chevron.setAttribute('fill', 'none');
+                    chevron.setAttribute('viewBox', '0 0 24 24');
+                    chevron.setAttribute('stroke-width', '2');
+                    chevron.setAttribute('stroke', 'currentColor');
+                    chevron.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>';
+
+                    summary.appendChild(ctxCheckbox);
+                    summary.appendChild(ctxLabel);
+                    summary.appendChild(chevron);
+                    details.appendChild(summary);
+
+                    const modContainer = document.createElement('div');
+                    modContainer.className = 'pl-6 mt-1 space-y-1';
+
+                    ctxModules.forEach(mod => {
+                        const isModHidden = contextMapState.hiddenModules.has(mod.key);
+                        const label = document.createElement('label');
+                        label.className = 'flex items-center gap-2 text-slate-600 dark:text-slate-400';
+
+                        const modCheckbox = document.createElement('input');
+                        modCheckbox.type = 'checkbox';
+                        modCheckbox.checked = !isModHidden;
+                        modCheckbox.className = 'rounded border-slate-300 dark:border-slate-600 text-primary-500 focus:ring-primary-500';
+                        modCheckbox.dataset.filterModule = mod.key;
+
+                        label.appendChild(modCheckbox);
+                        label.appendChild(document.createTextNode(mod.name));
+                        modContainer.appendChild(label);
+                    });
+
+                    details.appendChild(modContainer);
+                    filtersContainer.appendChild(details);
+                });
+
+                // Add filter event listeners
+                filtersContainer.onclick = e => {
+                    const checkbox = e.target.closest('input[type="checkbox"]');
+                    if (!checkbox) return;
+
+                    if (checkbox.dataset.filterContext) {
+                        const ctxName = checkbox.dataset.filterContext;
+                        if (checkbox.checked) contextMapState.hiddenContexts.delete(ctxName);
+                        else contextMapState.hiddenContexts.add(ctxName);
+                    } else if (checkbox.dataset.filterModule) {
+                        const modKey = checkbox.dataset.filterModule;
+                        if (checkbox.checked) contextMapState.hiddenModules.delete(modKey);
+                        else contextMapState.hiddenModules.add(modKey);
+                    }
+                    renderContextMapGraph();
+                };
+            }
+
+            // Create PIXI app once
+            const circleRadius = 40;
+            const padding = 80;
+            const minWidth = 600;
+            const minHeight = 400;
+
+            let app = canvas._pixiApp;
+            if (!app) {
+                app = new PIXI.Application({
+                    view: canvas,
+                    width: minWidth,
+                    height: minHeight,
+                    backgroundAlpha: 0,
+                    antialias: true,
+                    resolution: window.devicePixelRatio || 1,
+                    autoDensity: true
+                });
+                canvas._pixiApp = app;
+            }
+
+            renderContextMapGraph();
+
+            function renderContextMapGraph() {
+                // Clear the stage
+                app.stage.removeChildren();
+
+                // Filter visible modules
+                const visibleModules = modules.filter(mod =>
+                    !contextMapState.hiddenContexts.has(mod.context) && !contextMapState.hiddenModules.has(mod.key)
+                );
+
+                if (visibleModules.length === 0) {
+                    app.renderer.resize(400, 100);
+                    const emptyText = new PIXI.Text('No modules visible. Use filters to show modules.', {
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: 14,
+                        fill: isDark ? 0x94a3b8 : 0x64748b
+                    });
+                    emptyText.anchor.set(0.5);
+                    emptyText.x = 200;
+                    emptyText.y = 50;
+                    app.stage.addChild(emptyText);
+                    return;
+                }
+
+                // Filter visible relationships
+                const visibleRelationships = relationships.filter(rel =>
+                    !contextMapState.hiddenContexts.has(rel.from.split('/')[0]) &&
+                    !contextMapState.hiddenContexts.has(rel.to.split('/')[0]) &&
+                    !contextMapState.hiddenModules.has(rel.from) &&
+                    !contextMapState.hiddenModules.has(rel.to)
+                );
+
+                // Build visible context groups
+                const visibleContextGroups = {};
+                visibleModules.forEach(mod => {
+                    if (!visibleContextGroups[mod.context]) visibleContextGroups[mod.context] = [];
+                    visibleContextGroups[mod.context].push(mod);
+                });
+                const visibleContextNames = Object.keys(visibleContextGroups);
+                const contextCount = visibleContextNames.length;
+
+                const centerX = Math.max(minWidth, contextCount * 220) / 2;
+                const centerY = Math.max(minHeight, contextCount * 180) / 2;
+                const contextRadius = Math.min(centerX, centerY) - padding - circleRadius * 2;
+
+                // Calculate positions
+                const positions = {};
+                visibleContextNames.forEach((ctxName, ctxIdx) => {
+                    const offset = contextMapState.contextOffsets[ctxName] || { x: 0, y: 0 };
+                    const ctxAngle = (ctxIdx / contextCount) * Math.PI * 2 - Math.PI / 2;
+                    const ctxCenterX = centerX + Math.cos(ctxAngle) * contextRadius + offset.x;
+                    const ctxCenterY = centerY + Math.sin(ctxAngle) * contextRadius + offset.y;
+
+                    const ctxModules = visibleContextGroups[ctxName];
+                    const moduleRadius = Math.min(80, 40 + ctxModules.length * 15);
+
+                    ctxModules.forEach((mod, modIdx) => {
+                        const modAngle = (modIdx / ctxModules.length) * Math.PI * 2 - Math.PI / 2;
+                        positions[mod.key] = {
+                            x: ctxCenterX + Math.cos(modAngle) * moduleRadius,
+                            y: ctxCenterY + Math.sin(modAngle) * moduleRadius,
+                            context: ctxName
+                        };
+                    });
+                });
+
+                const width = Math.max(minWidth, centerX * 2 + padding);
+                const height = Math.max(minHeight, centerY * 2 + padding);
+
+                // Resize renderer if needed
+                app.renderer.resize(width, height);
+
+                const colors = {
+                    module: isDark ? 0x0ea5e9 : 0x0284c7,
+                    moduleBg: isDark ? 0x1e3a5f : 0xe0f2fe,
+                    text: isDark ? 0xe2e8f0 : 0x334155,
+                    acl: isDark ? 0x06b6d4 : 0x0891b2,
+                    event: isDark ? 0xf59e0b : 0xd97706,
+                    contextBg: isDark ? 0x1e293b : 0xf1f5f9
+                };
+
+                // Draw draggable context backgrounds
+                visibleContextNames.forEach(ctxName => {
+                    const ctxModules = visibleContextGroups[ctxName];
+                    if (ctxModules.length === 0) return;
+
+                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                    ctxModules.forEach(m => {
+                        const pos = positions[m.key];
+                        minX = Math.min(minX, pos.x); minY = Math.min(minY, pos.y);
+                        maxX = Math.max(maxX, pos.x); maxY = Math.max(maxY, pos.y);
+                    });
+
+                    const boxPadding = circleRadius + 30;
+                    const bg = new PIXI.Graphics();
+                    bg.beginFill(colors.contextBg, 0.5);
+                    bg.lineStyle(2, isDark ? 0x475569 : 0x94a3b8);
+                    bg.drawRoundedRect(minX - boxPadding, minY - boxPadding, maxX - minX + boxPadding * 2, maxY - minY + boxPadding * 2, 12);
+                    bg.endFill();
+                    bg.eventMode = 'static';
+                    bg.cursor = 'grab';
+
+                    let dragging = false, dragStart = { x: 0, y: 0 };
+                    bg.on('pointerdown', e => { dragging = true; bg.cursor = 'grabbing'; dragStart = { x: e.global.x, y: e.global.y }; });
+                    app.stage.eventMode = 'static';
+                    app.stage.on('pointermove', e => {
+                        if (!dragging) return;
+                        const dx = e.global.x - dragStart.x, dy = e.global.y - dragStart.y;
+                        dragStart = { x: e.global.x, y: e.global.y };
+                        if (!contextMapState.contextOffsets[ctxName]) contextMapState.contextOffsets[ctxName] = { x: 0, y: 0 };
+                        contextMapState.contextOffsets[ctxName].x += dx;
+                        contextMapState.contextOffsets[ctxName].y += dy;
+                        renderContextMapGraph();
+                    });
+                    app.stage.on('pointerup', () => { dragging = false; bg.cursor = 'grab'; });
+                    app.stage.on('pointerupoutside', () => { dragging = false; bg.cursor = 'grab'; });
+                    app.stage.addChild(bg);
+
+                    const ctxLabel = new PIXI.Text(ctxName, { fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: '600', fill: isDark ? 0x94a3b8 : 0x64748b });
+                    ctxLabel.x = minX - boxPadding + 10;
+                    ctxLabel.y = minY - boxPadding + 8;
+                    app.stage.addChild(ctxLabel);
+                });
+
+                // Group relationships by pair
+                const pairCounts = {}, pairIndices = {};
+                visibleRelationships.forEach(rel => { const k = [rel.from, rel.to].sort().join('|'); pairCounts[k] = (pairCounts[k] || 0) + 1; });
+                visibleRelationships.forEach(rel => {
+                    const k = [rel.from, rel.to].sort().join('|');
+                    if (!pairIndices[k]) pairIndices[k] = 0;
+                    rel.pairIndex = pairIndices[k]++;
+                    rel.pairTotal = pairCounts[k];
+                });
+
+                // Draw relationships
+                visibleRelationships.forEach(rel => {
+                    const fromPos = positions[rel.from], toPos = positions[rel.to];
+                    if (!fromPos || !toPos) return;
+
+                    const color = rel.type === 'acl' ? colors.acl : colors.event;
+                    const dx = toPos.x - fromPos.x, dy = toPos.y - fromPos.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist === 0) return;
+                    const nx = dx / dist, ny = dy / dist;
+
+                    // Use consistent perpendicular direction based on sorted pair key
+                    // This ensures relationships in opposite directions don't overlap
+                    const sortedPair = [rel.from, rel.to].sort();
+                    const isReversed = sortedPair[0] !== rel.from;
+                    const px = isReversed ? ny : -ny;
+                    const py = isReversed ? -nx : nx;
+
+                    // For single relationships, use minimal curve; for multiple, spread them out more
+                    let curveOffset = rel.pairTotal > 1 ? (rel.pairIndex - (rel.pairTotal - 1) / 2) * 70 : 15;
+                    const startX = fromPos.x + nx * circleRadius, startY = fromPos.y + ny * circleRadius;
+                    const endX = toPos.x - nx * (circleRadius + 8), endY = toPos.y - ny * (circleRadius + 8);
+                    const midX = (startX + endX) / 2 + px * curveOffset, midY = (startY + endY) / 2 + py * curveOffset;
+
+                    const line = new PIXI.Graphics();
+                    line.lineStyle(2, color, 0.8);
+                    if (rel.type === 'acl') {
+                        line.moveTo(startX, startY);
+                        line.quadraticCurveTo(midX, midY, endX, endY);
+                    } else {
+                        let dashOn = true;
+                        for (let i = 0; i < 30; i++) {
+                            const t1 = i / 30, t2 = (i + 1) / 30;
+                            const x1 = (1-t1)*(1-t1)*startX + 2*(1-t1)*t1*midX + t1*t1*endX;
+                            const y1 = (1-t1)*(1-t1)*startY + 2*(1-t1)*t1*midY + t1*t1*endY;
+                            const x2 = (1-t2)*(1-t2)*startX + 2*(1-t2)*t2*midX + t2*t2*endX;
+                            const y2 = (1-t2)*(1-t2)*startY + 2*(1-t2)*t2*midY + t2*t2*endY;
+                            if (dashOn) { line.moveTo(x1, y1); line.lineTo(x2, y2); }
+                            if (i % 2 === 1) dashOn = !dashOn;
+                        }
+                    }
+                    app.stage.addChild(line);
+
+                    // Arrow
+                    const t = 0.98;
+                    const tx = 2*(1-t)*(midX - startX) + 2*t*(endX - midX), ty = 2*(1-t)*(midY - startY) + 2*t*(endY - midY);
+                    const tl = Math.sqrt(tx*tx + ty*ty), anx = tx/tl, any = ty/tl;
+                    const arrow = new PIXI.Graphics();
+                    arrow.beginFill(color, 0.8);
+                    arrow.moveTo(endX, endY);
+                    arrow.lineTo(endX - anx*8 - any*4, endY - any*8 + anx*4);
+                    arrow.lineTo(endX - anx*8 + any*4, endY - any*8 - anx*4);
+                    arrow.closePath(); arrow.endFill();
+                    app.stage.addChild(arrow);
+
+                    // Label
+                    const labelBg = new PIXI.Graphics();
+                    const labelText = new PIXI.Text(rel.label, { fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: '500', fill: color });
+                    labelText.anchor.set(0.5); labelText.x = midX; labelText.y = midY;
+                    labelBg.beginFill(isDark ? 0x0f172a : 0xffffff, 0.9);
+                    labelBg.drawRoundedRect(midX - labelText.width/2 - 4, midY - labelText.height/2 - 2, labelText.width + 8, labelText.height + 4, 3);
+                    labelBg.endFill();
+                    app.stage.addChild(labelBg); app.stage.addChild(labelText);
+                });
+
+                // Draw modules (no navigation)
+                visibleModules.forEach(mod => {
+                    const pos = positions[mod.key];
+                    const circle = new PIXI.Graphics();
+                    circle.beginFill(colors.moduleBg, 0.8);
+                    circle.lineStyle(2, colors.module);
+                    circle.drawCircle(0, 0, circleRadius);
+                    circle.endFill();
+                    circle.x = pos.x; circle.y = pos.y;
+                    app.stage.addChild(circle);
+
+                    const abbr = new PIXI.Text(mod.name.substring(0, 3).toUpperCase(), { fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 'bold', fill: colors.module });
+                    abbr.anchor.set(0.5); abbr.x = pos.x; abbr.y = pos.y - 4;
+                    app.stage.addChild(abbr);
+
+                    const nameText = new PIXI.Text(mod.name, { fontFamily: 'Inter, sans-serif', fontSize: 10, fill: colors.text });
+                    nameText.anchor.set(0.5, 0); nameText.x = pos.x; nameText.y = pos.y + circleRadius + 4;
+                    app.stage.addChild(nameText);
+                });
+            }
         }
 
         function renderModule(ctxName, modName, initialTab) {
