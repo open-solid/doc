@@ -39,20 +39,35 @@ final readonly class DocBlockParser
 
     public function getPropertyDescription(\ReflectionProperty $property): ?string
     {
+        // First, try to get description from property's own docblock
         $docComment = $property->getDocComment();
 
-        if (false === $docComment) {
-            return null;
+        if (false !== $docComment) {
+            try {
+                $docBlock = $this->docBlockFactory->create($docComment);
+                $summary = $docBlock->getSummary();
+
+                if ('' !== $summary) {
+                    return $summary;
+                }
+            } catch (\Throwable) {
+                // Continue to check constructor
+            }
         }
 
-        try {
-            $docBlock = $this->docBlockFactory->create($docComment);
-            $summary = $docBlock->getSummary();
+        // For promoted properties, check constructor's @param tags
+        if ($property->isPromoted()) {
+            $constructor = $property->getDeclaringClass()->getConstructor();
 
-            return '' !== $summary ? $summary : null;
-        } catch (\Throwable) {
-            return null;
+            if (null !== $constructor) {
+                return $this->getParamDescriptionFromDocBlock(
+                    $constructor->getDocComment(),
+                    $property->getName()
+                );
+            }
         }
+
+        return null;
     }
 
     public function getMethodDescription(\ReflectionMethod $method): ?string

@@ -12,29 +12,17 @@ use OpenSolid\Core\Domain\Event\Message\DomainEvent;
 final readonly class InvoiceCreated extends DomainEvent
 {
     /**
-     * The unique identifier of the invoice.
+     * @param string $aggregateId The aggregate root identifier.
+     * @param string $invoiceId The unique identifier of the invoice.
+     * @param string $customerId The customer who owns the invoice.
+     * @param float $amount The total amount of the invoice.
      */
-    public string $invoiceId;
-
-    /**
-     * The customer who owns the invoice.
-     */
-    public string $customerId;
-
-    /**
-     * The total amount of the invoice.
-     */
-    public float $amount;
-
     public function __construct(
         string $aggregateId,
-        string $invoiceId,
-        string $customerId,
-        float $amount,
+        public string $invoiceId,
+        public string $customerId,
+        public float $amount,
     ) {
         parent::__construct($aggregateId);
-        $this->invoiceId = $invoiceId;
-        $this->customerId = $customerId;
-        $this->amount = $amount;
     }
 }
