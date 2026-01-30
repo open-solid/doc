@@ -6,12 +6,16 @@ namespace OpenSolid\ArchViewer\Tests\Functional;
 
 use OpenSolid\ArchViewer\ArchViewerBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
-use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 final class TestKernel extends Kernel
 {
+    use MicroKernelTrait;
+
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
@@ -25,9 +29,14 @@ final class TestKernel extends Kernel
         };
     }
 
-    public function registerContainerConfiguration(LoaderInterface $loader): void
+    protected function configureContainer(ContainerConfigurator $container): void
     {
-        $loader->load(__DIR__.'/config/framework.php');
+        $container->import(__DIR__.'/config/framework.php');
+    }
+
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $routes->import(__DIR__.'/../../config/routes.php');
     }
 
     public function getCacheDir(): string

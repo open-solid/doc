@@ -213,7 +213,7 @@
         };
 
         // Load data
-        fetch('arch.json').then(r => r.json()).then(json => { data = json; init(); }).catch(() => {
+        fetch('<?= $archJsonUrl ?>').then(r => r.json()).then(json => { data = json; init(); }).catch(() => {
             $('#content').innerHTML = '<p class="text-red-500">Failed to load architecture data. Make sure arch.json exists.</p>';
         });
 

@@ -2,6 +2,7 @@
 
 use OpenSolid\ArchViewer\ArchExporter;
 use OpenSolid\ArchViewer\Command\ExportCommand;
+use OpenSolid\ArchViewer\Controller\ViewerController;
 use OpenSolid\ArchViewer\Extractor\CommandExtractor;
 use OpenSolid\ArchViewer\Extractor\DomainEventExtractor;
 use OpenSolid\ArchViewer\Extractor\EventSubscriberExtractor;
@@ -12,6 +13,7 @@ use OpenSolid\ArchViewer\Parser\GenericTypeParser;
 use OpenSolid\ArchViewer\Scanner\ClassScanner;
 use OpenSolid\ArchViewer\Scanner\ModuleScanner;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -77,4 +79,12 @@ return static function (ContainerConfigurator $container): void {
             param('kernel.project_dir'),
         ])
         ->tag('console.command');
+
+    // Controller
+    $services->set(ViewerController::class)
+        ->args([
+            service(UrlGeneratorInterface::class),
+            param('kernel.project_dir').'/arch.json',
+        ])
+        ->tag('controller.service_arguments');
 };
