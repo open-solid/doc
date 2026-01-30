@@ -147,7 +147,11 @@
                         <div class="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
                             <div class="flex items-center gap-2">
                                 <span class="inline-block w-8 h-0.5 bg-cyan-500"></span>
-                                <span>ACL</span>
+                                <span>Command Bus</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-8 h-0.5 bg-violet-500"></span>
+                                <span>Query Bus</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="inline-block w-8 h-0.5 bg-amber-500" style="background: repeating-linear-gradient(90deg, rgb(245 158 11) 0px, rgb(245 158 11) 6px, transparent 6px, transparent 12px);"></span>
@@ -368,14 +372,16 @@
                 });
             });
 
-            // Collect relationships from external calls (ACL)
+            // Collect relationships from external calls (Command Bus / Query Bus)
             data.contexts.forEach(ctx => {
                 ctx.modules.forEach(mod => {
                     const sourceKey = `${ctx.name}/${mod.name}`;
                     (mod.externalCalls || []).forEach(call => {
                         const targetKey = `${call.targetContext}/${call.targetModule}`;
                         if (moduleIndex[targetKey] !== undefined) {
-                            relationships.push({ from: sourceKey, to: targetKey, type: 'acl', label: 'ACL' });
+                            const callType = call.type === 'query' ? 'query' : 'command';
+                            const label = call.type === 'query' ? 'Query Bus' : 'Command Bus';
+                            relationships.push({ from: sourceKey, to: targetKey, type: callType, label: label });
                         }
                     });
                 });
@@ -607,7 +613,8 @@
                     module: isDark ? 0x0ea5e9 : 0x0284c7,
                     moduleBg: isDark ? 0x1e3a5f : 0xe0f2fe,
                     text: isDark ? 0xe2e8f0 : 0x334155,
-                    acl: isDark ? 0x06b6d4 : 0x0891b2,
+                    command: isDark ? 0x06b6d4 : 0x0891b2,  // cyan for Command Bus
+                    query: isDark ? 0x8b5cf6 : 0x7c3aed,    // violet for Query Bus
                     event: isDark ? 0xf59e0b : 0xd97706,
                     contextBg: isDark ? 0x1e293b : 0xf1f5f9
                 };
@@ -670,7 +677,7 @@
                     const fromPos = positions[rel.from], toPos = positions[rel.to];
                     if (!fromPos || !toPos) return;
 
-                    const color = rel.type === 'acl' ? colors.acl : colors.event;
+                    const color = rel.type === 'event' ? colors.event : (rel.type === 'query' ? colors.query : colors.command);
                     const dx = toPos.x - fromPos.x, dy = toPos.y - fromPos.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist === 0) return;
@@ -691,7 +698,8 @@
 
                     const line = new PIXI.Graphics();
                     line.lineStyle(2, color, 0.8);
-                    if (rel.type === 'acl') {
+                    if (rel.type !== 'event') {
+                        // Solid line for Command Bus and Query Bus
                         line.moveTo(startX, startY);
                         line.quadraticCurveTo(midX, midY, endX, endY);
                     } else {
