@@ -29,7 +29,7 @@ final readonly class ExportCommand
     public function __invoke(
         SymfonyStyle $io,
         #[Option('Output file path', 'output', 'o')] string $outputFile = 'arch.json',
-        #[Option('Pretty print the JSON output', 'p')] bool $pretty = false
+        #[Option('Pretty print the JSON output', 'p')] bool $pretty = true,
     ): int {
         $io->title('Architecture Export');
 
