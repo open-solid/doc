@@ -36,7 +36,12 @@ final readonly class ViewerController
     {
         return new Response(
             content: file_get_contents($this->archJsonPath),
-            headers: ['Content-Type' => 'application/json'],
+            headers: [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ],
         );
     }
 
