@@ -175,7 +175,7 @@
         "outputType": {
             "type": "object",
             "description": "The output type of a command or query.",
-            "required": ["type", "class"],
+            "required": ["type"],
             "properties": {
                 "type": {
                     "type": "string",
