@@ -61,6 +61,18 @@
                             "description": "Emitted when a new invoice is created.",
                             "properties": [
                                 {
+                                    "name": "id",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "aggregateId",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "occurredOn",
+                                    "type": "DateTimeImmutable"
+                                },
+                                {
                                     "name": "invoiceId",
                                     "type": "string",
                                     "description": "The unique identifier of the invoice."

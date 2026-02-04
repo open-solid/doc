@@ -158,11 +158,16 @@ final class ArchExporterTest extends TestCase
         self::assertArrayHasKey('description', $domainEvent);
         self::assertArrayHasKey('properties', $domainEvent);
 
-        // Verify event property structure
-        $eventProperty = $domainEvent['properties'][0];
+        // Verify event property structure (check a child property that has description)
+        $eventProperty = $domainEvent['properties'][3]; // invoiceId property
         self::assertArrayHasKey('name', $eventProperty);
         self::assertArrayHasKey('type', $eventProperty);
         self::assertArrayHasKey('description', $eventProperty);
+
+        // Verify parent properties are included first
+        self::assertSame('id', $domainEvent['properties'][0]['name']);
+        self::assertSame('aggregateId', $domainEvent['properties'][1]['name']);
+        self::assertSame('occurredOn', $domainEvent['properties'][2]['name']);
 
         // Verify event subscriber structure
         $subscriber = $invoiceModule['eventSubscribers'][0];
@@ -239,6 +244,18 @@ final class ArchExporterTest extends TestCase
             class: 'App\\Billing\\Invoice\\Domain\\Event\\InvoiceCreated',
             description: 'Emitted when a new invoice is created.',
             properties: [
+                new ParameterOutput(
+                    name: 'id',
+                    type: 'string',
+                ),
+                new ParameterOutput(
+                    name: 'aggregateId',
+                    type: 'string',
+                ),
+                new ParameterOutput(
+                    name: 'occurredOn',
+                    type: 'DateTimeImmutable',
+                ),
                 new ParameterOutput(
                     name: 'invoiceId',
                     type: 'string',

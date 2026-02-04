@@ -13,8 +13,6 @@ use OpenSolid\Core\Domain\Event\Message\DomainEvent;
 
 final readonly class DomainEventExtractor
 {
-    private const array INHERITED_PROPERTIES = ['id', 'aggregateId', 'occurredOn'];
-
     public function __construct(
         private ClassScanner $classScanner,
         private DocBlockParser $docBlockParser,
@@ -46,17 +44,45 @@ final readonly class DomainEventExtractor
     private function createDomainEventOutput(\ReflectionClass $class): DomainEventOutput
     {
         $properties = [];
+        $addedProperties = [];
 
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            if (in_array($property->getName(), self::INHERITED_PROPERTIES, true)) {
-                continue;
+        // First, collect properties from parent classes (in order from base to child)
+        $parentClasses = [];
+        $parent = $class->getParentClass();
+        while ($parent && $parent->getName() !== DomainEvent::class) {
+            $parentClasses[] = $parent;
+            $parent = $parent->getParentClass();
+        }
+        if ($parent && $parent->getName() === DomainEvent::class) {
+            $parentClasses[] = $parent;
+        }
+        $parentClasses = array_reverse($parentClasses);
+
+        foreach ($parentClasses as $parentClass) {
+            foreach ($parentClass->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+                if ($property->getDeclaringClass()->getName() !== $parentClass->getName()) {
+                    continue;
+                }
+
+                $propertyName = $property->getName();
+                if (!isset($addedProperties[$propertyName])) {
+                    $properties[] = $this->createParameterOutput($property);
+                    $addedProperties[$propertyName] = true;
+                }
             }
+        }
 
+        // Then, collect properties from the current class
+        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
             if ($property->getDeclaringClass()->getName() !== $class->getName()) {
                 continue;
             }
 
-            $properties[] = $this->createParameterOutput($property);
+            $propertyName = $property->getName();
+            if (!isset($addedProperties[$propertyName])) {
+                $properties[] = $this->createParameterOutput($property);
+                $addedProperties[$propertyName] = true;
+            }
         }
 
         return new DomainEventOutput(
