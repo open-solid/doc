@@ -152,7 +152,7 @@
                 <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Overview</h1>
                 <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-3xl">
                     Explore the domain-driven architecture of <strong class="text-primary-600 dark:text-primary-400" data-project></strong>.
-                    Navigate through bounded contexts, modules, commands, queries, and domain events.
+                    Navigate through bounded contexts, modules, commands, queries, domain events, and API documentation.
                 </p>
                 <p class="mt-2 text-sm text-slate-500" data-generated></p>
             </header>
@@ -964,7 +964,7 @@
                     ? (item, idx) => renderSubscriber(item, color, ctxName, modName, idx)
                     : item => renderItem(item, key, color);
                 return `
-                    <div data-panel="${key}" class="tab-panel ${isActive ? '' : 'hidden'} grid grid-cols-1 md:grid-cols-2 gap-4 fade-in">
+                    <div data-panel="${key}" class="tab-panel ${isActive ? '' : 'hidden'} grid grid-cols-1 gap-4 fade-in">
                         ${items.map((item, idx) => renderFn(item, idx)).join('')}
                     </div>
                 `;
@@ -1012,7 +1012,7 @@
             const description = findCallDescription(item.targetClass, item.type);
             const badgeColor = item.type === 'command' ? 'emerald' : 'violet';
             return `
-                <article class="rounded-lg border border-${color}-200 dark:border-${color}-800 bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
+                <article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
                     <div class="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 class="text-base font-semibold cursor-help border-b border-dashed border-slate-400 dark:border-slate-600" title="${h(item.sourceClass)}">${h(item.source)}</h3>
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${color}-100 dark:bg-${color}-900/50 text-${color}-700 dark:text-${color}-300">calls</span>
@@ -1239,7 +1239,7 @@
             const canvasId = `subscriber-${index}-${Date.now()}`;
             const eventLoc = findEventLocation(item.eventClass);
             return `
-                <article class="rounded-lg border border-${color}-200 dark:border-${color}-800 bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
+                <article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
                     <div class="flex items-center gap-2 mb-1">
                         <h3 class="text-base font-semibold cursor-help border-b border-dashed border-slate-400 dark:border-slate-600" title="${h(item.class)}">${h(item.name)}</h3>
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${color}-100 dark:bg-${color}-900/50 text-${color}-700 dark:text-${color}-300">subscriber</span>
@@ -1506,7 +1506,7 @@
                     </a></div>`;
             }
 
-            return `<article class="rounded-lg border border-${color}-200 dark:border-${color}-800 bg-${color}-50/50 dark:bg-${color}-900/10 p-4">${content}</article>`;
+            return `<article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">${content}</article>`;
         }
     })();
     </script>
