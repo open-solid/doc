@@ -2,7 +2,7 @@
     "name": "open-solid/doc",
     "type": "symfony-bundle",
     "license": "MIT",
-    "description": "Export and visualize your OpenSolid project architecture",
+    "description": "Doc generator for your OpenSolid projects",
     "minimum-stability": "stable",
     "require": {
         "php": ">=8.5",
