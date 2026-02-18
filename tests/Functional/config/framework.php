@@ -14,6 +14,11 @@ return static function (ContainerConfigurator $container): void {
         ],
     ]);
 
+    $container->extension('open_solid_doc', [
+        'company' => 'test-company',
+        'project' => 'test-project',
+    ]);
+
     $container->services()
         ->set('logger', NullLogger::class);
 };

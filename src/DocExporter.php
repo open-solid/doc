@@ -27,7 +27,7 @@ final readonly class DocExporter
     ) {
     }
 
-    public function export(string $srcDir, string $projectName = 'club-api'): ArchOutput
+    public function export(string $srcDir, string $company, string $project): ArchOutput
     {
         /** @var ModuleOutput[] $contextModules */
         $contextModules = [];
@@ -61,7 +61,8 @@ final readonly class DocExporter
             contexts: $contexts,
             meta: new MetaOutput(
                 generatedAt: new \DateTimeImmutable(),
-                project: $projectName,
+                company: $company,
+                project: $project,
             ),
         );
     }

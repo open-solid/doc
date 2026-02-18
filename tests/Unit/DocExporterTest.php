@@ -72,7 +72,7 @@ final class DocExporterTest extends TestCase
             $externalCallExtractor,
         );
 
-        $arch = $exporter->export($fixturesPath, 'test-project');
+        $arch = $exporter->export($fixturesPath, 'test-company', 'test-project');
 
         // Override generatedAt for deterministic comparison
         $archArray = json_decode(json_encode($arch), true);
@@ -348,6 +348,7 @@ final class DocExporterTest extends TestCase
             contexts: [$billingContext, $identityContext],
             meta: new MetaOutput(
                 generatedAt: new \DateTimeImmutable('2024-01-15T10:30:00+00:00'),
+                company: 'test-company',
                 project: 'test-project',
             ),
         );
@@ -388,6 +389,7 @@ final class DocExporterTest extends TestCase
 
         $meta = new MetaOutput(
             generatedAt: new \DateTimeImmutable('2024-01-01 00:00:00'),
+            company: 'test-company',
             project: 'test-project',
         );
 
@@ -396,6 +398,7 @@ final class DocExporterTest extends TestCase
             meta: $meta,
         );
 
+        self::assertSame('test-company', $arch->meta->company);
         self::assertSame('test-project', $arch->meta->project);
         self::assertCount(1, $arch->contexts);
         self::assertSame('Billing', $arch->contexts[0]->name);
@@ -434,6 +437,7 @@ final class DocExporterTest extends TestCase
 
         $meta = new MetaOutput(
             generatedAt: new \DateTimeImmutable('2024-01-01T00:00:00+00:00'),
+            company: 'test-company',
             project: 'test-project',
         );
 
@@ -458,7 +462,8 @@ final class DocExporterTest extends TestCase
     {
         $meta = new MetaOutput(
             generatedAt: new \DateTimeImmutable(),
-            project: 'empty-project',
+            company: 'test-company',
+            project: 'test-project',
         );
 
         $arch = new ArchOutput(
@@ -467,7 +472,8 @@ final class DocExporterTest extends TestCase
         );
 
         self::assertCount(0, $arch->contexts);
-        self::assertSame('empty-project', $arch->meta->project);
+        self::assertSame('test-company', $arch->meta->company);
+        self::assertSame('test-project', $arch->meta->project);
         self::assertInstanceOf(\DateTimeImmutable::class, $arch->meta->generatedAt);
     }
 

@@ -8,6 +8,7 @@ final readonly class MetaOutput implements \JsonSerializable
 {
     public function __construct(
         public \DateTimeImmutable $generatedAt,
+        public string $company,
         public string $project,
     ) {
     }
@@ -19,6 +20,7 @@ final readonly class MetaOutput implements \JsonSerializable
     {
         return [
             'generatedAt' => $this->generatedAt->format('c'),
+            'company' => $this->company,
             'project' => $this->project,
         ];
     }

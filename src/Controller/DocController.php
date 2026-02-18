@@ -17,6 +17,8 @@ final readonly class DocController
         private UrlGeneratorInterface $urlGenerator,
         private ExportCommand $exportCommand,
         private string $archJsonPath,
+        private string $company,
+        private string $project,
     ) {
     }
 
@@ -49,7 +51,7 @@ final readonly class DocController
     {
         $io = new SymfonyStyle(new ArrayInput([]), new NullOutput());
 
-        $exitCode = ($this->exportCommand)($io, outputFile: $this->archJsonPath);
+        $exitCode = ($this->exportCommand)(io: $io, outputFile: $this->archJsonPath);
 
         return new JsonResponse(['success' => 0 === $exitCode]);
     }

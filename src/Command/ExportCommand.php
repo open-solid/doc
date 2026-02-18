@@ -7,11 +7,11 @@ namespace OpenSolid\Doc\Command;
 use OpenSolid\Doc\DocExporter;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
     name: 'open:arch:export',
@@ -21,8 +21,9 @@ final readonly class ExportCommand
 {
     public function __construct(
         private DocExporter $exporter,
-        #[Autowire('%kernel.project_dir%')]
-        private string      $projectDir,
+        private string $projectDir,
+        private string $company,
+        private string $project,
     ) {
     }
 
@@ -36,7 +37,7 @@ final readonly class ExportCommand
         $srcDir = $this->projectDir.'/src';
         $io->text('Scanning source directory: '.$srcDir);
 
-        $arch = $this->exporter->export($srcDir);
+        $arch = $this->exporter->export($srcDir, $this->company, $this->project);
 
         $jsonFlags = \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR;
         if ($pretty) {

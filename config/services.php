@@ -77,6 +77,8 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DocExporter::class),
             param('kernel.project_dir'),
+            param('open_solid_doc.company'),
+            param('open_solid_doc.project'),
         ])
         ->tag('console.command');
 
@@ -86,6 +88,8 @@ return static function (ContainerConfigurator $container): void {
             service(UrlGeneratorInterface::class),
             service('arch_viewer.arch_export_command'),
             param('kernel.project_dir').'/arch.json',
+            param('open_solid_doc.company'),
+            param('open_solid_doc.project'),
         ])
         ->tag('controller.service_arguments');
 };

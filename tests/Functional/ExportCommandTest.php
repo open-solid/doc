@@ -38,7 +38,7 @@ final class ExportCommandTest extends TestCase
         $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
-        $arch = $exporter->export($fixturesPath, 'test-project');
+        $arch = $exporter->export($fixturesPath, 'test-company', 'test-project');
 
         $json = json_encode($arch, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES);
 
@@ -65,7 +65,7 @@ final class ExportCommandTest extends TestCase
         $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
-        $arch = $exporter->export($fixturesPath, 'test-project');
+        $arch = $exporter->export($fixturesPath, 'test-company', 'test-project');
 
         $json = json_encode($arch, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
 
@@ -102,7 +102,7 @@ final class ExportCommandTest extends TestCase
         $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
-        $arch = $exporter->export($fixturesPath, 'test-project');
+        $arch = $exporter->export($fixturesPath, 'test-company', 'test-project');
 
         // Verify contexts
         self::assertCount(2, $arch->contexts);
@@ -156,7 +156,7 @@ final class ExportCommandTest extends TestCase
         $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
-        $arch = $exporter->export($fixturesPath, 'test-project');
+        $arch = $exporter->export($fixturesPath, 'test-company', 'test-project');
 
         // Override generatedAt for deterministic comparison
         $archArray = json_decode(json_encode($arch), true);

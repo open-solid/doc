@@ -293,6 +293,10 @@
                 "project": {
                     "type": "string",
                     "description": "The project name."
+                },
+                "company": {
+                    "type": "string",
+                    "description": "The company name of the project."
                 }
             },
             "additionalProperties": false
