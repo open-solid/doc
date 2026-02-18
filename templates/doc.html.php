@@ -964,7 +964,7 @@
                     ? (item, idx) => renderSubscriber(item, color, ctxName, modName, idx)
                     : item => renderItem(item, key, color);
                 return `
-                    <div data-panel="${key}" class="tab-panel ${isActive ? '' : 'hidden'} grid grid-cols-1 gap-4 fade-in">
+                    <div data-panel="${key}" class="tab-panel ${isActive ? '' : 'hidden'} grid grid-cols-1 gap-8 fade-in">
                         ${items.map((item, idx) => renderFn(item, idx)).join('')}
                     </div>
                 `;
@@ -1020,7 +1020,7 @@
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${badgeColor}-100 dark:bg-${badgeColor}-900/50 text-${badgeColor}-700 dark:text-${badgeColor}-300">${h(item.type)}</span>
                     </div>
                     ${description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-3">${h(description)}</p>` : ''}
-                    <div class="external-call-graph flex justify-center"
+                    <div class="external-call-graph flex justify-start"
                          data-canvas-id="${canvasId}"
                          data-source-module="${h(moduleName)}"
                          data-source-class="${h(item.source)}"
@@ -1245,7 +1245,7 @@
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${color}-100 dark:bg-${color}-900/50 text-${color}-700 dark:text-${color}-300">subscriber</span>
                     </div>
                     ${item.description ? `<p class="text-sm text-slate-600 dark:text-slate-400 mb-3">${h(item.description)}</p>` : ''}
-                    <div class="subscriber-graph flex justify-center"
+                    <div class="subscriber-graph flex start"
                          data-canvas-id="${canvasId}"
                          data-subscriber-module="${h(moduleName)}"
                          data-subscriber-class="${h(item.class)}"
