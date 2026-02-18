@@ -42,7 +42,7 @@ final class DocControllerTest extends TestCase
         $response = $this->kernel->handle($request);
 
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        self::assertStringContainsString('Architecture Overview', $response->getContent());
+        self::assertStringContainsString('__ARCH_CONFIG__', $response->getContent());
         self::assertStringContainsString('/arch.json', $response->getContent());
     }
 
