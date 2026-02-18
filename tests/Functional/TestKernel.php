@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OpenSolid\Doc\Tests\Functional;
 
-use OpenSolid\Doc\DocBundle;
+use OpenSolid\Doc\OpenSolidDocBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -19,7 +19,7 @@ final class TestKernel extends Kernel
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
-        yield new DocBundle();
+        yield new OpenSolidDocBundle();
         yield new class extends Bundle
         {
             public function shutdown(): void
