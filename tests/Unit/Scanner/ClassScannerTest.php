@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Scanner;
+namespace OpenSolid\Doc\Tests\Unit\Scanner;
 
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

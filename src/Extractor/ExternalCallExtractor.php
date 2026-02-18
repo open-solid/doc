@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Extractor;
+namespace OpenSolid\Doc\Extractor;
 
-use OpenSolid\ArchViewer\Model\ExternalCallOutput;
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Model\ExternalCallOutput;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use OpenSolid\Core\Application\Command\Bus\CommandBus;
 use OpenSolid\Core\Application\Command\Message\Command;
 use OpenSolid\Core\Application\Query\Bus\QueryBus;

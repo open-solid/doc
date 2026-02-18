@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenSolid\ArchViewer\Controller;
+namespace OpenSolid\Doc\Controller;
 
-use OpenSolid\ArchViewer\Command\ExportCommand;
+use OpenSolid\Doc\Command\ExportCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final readonly class ViewerController
+final readonly class DocController
 {
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
@@ -26,7 +26,7 @@ final readonly class ViewerController
         $archJsonUpdateUrl = $this->urlGenerator->generate('arch_json_update_controller');
 
         ob_start();
-        include __DIR__ . '/../../templates/arch_viewer.html.php';
+        include __DIR__ . '/../../templates/doc.html.php';
         $content = ob_get_clean();
 
         return new Response(content: $content);

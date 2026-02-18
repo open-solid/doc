@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Parser;
+namespace OpenSolid\Doc\Tests\Unit\Parser;
 
-use OpenSolid\ArchViewer\Parser\DocBlockParser;
+use OpenSolid\Doc\Parser\DocBlockParser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

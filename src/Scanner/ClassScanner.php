@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Scanner;
+namespace OpenSolid\Doc\Scanner;
 
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use Symfony\Component\Finder\Finder;
 
 final readonly class ClassScanner

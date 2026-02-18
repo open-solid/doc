@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Parser;
+namespace OpenSolid\Doc\Parser;
 
 use OpenSolid\Core\Application\Command\Message\Command;
 use PHPStan\PhpDocParser\Lexer\Lexer;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Command;
+namespace OpenSolid\Doc\Command;
 
-use OpenSolid\ArchViewer\ArchExporter;
+use OpenSolid\Doc\DocExporter;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -20,9 +20,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class ExportCommand
 {
     public function __construct(
-        private ArchExporter $exporter,
+        private DocExporter $exporter,
         #[Autowire('%kernel.project_dir%')]
-        private string $projectDir,
+        private string      $projectDir,
     ) {
     }
 

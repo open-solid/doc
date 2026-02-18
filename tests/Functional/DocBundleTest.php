@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Functional;
+namespace OpenSolid\Doc\Tests\Functional;
 
-use OpenSolid\ArchViewer\ArchExporter;
-use OpenSolid\ArchViewer\Command\ExportCommand;
+use OpenSolid\Doc\DocExporter;
+use OpenSolid\Doc\Command\ExportCommand;
 use PHPUnit\Framework\TestCase;
 
-final class ArchViewerBundleTest extends TestCase
+final class DocBundleTest extends TestCase
 {
     private TestKernel $kernel;
 
@@ -38,10 +38,10 @@ final class ArchViewerBundleTest extends TestCase
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
 
-        self::assertTrue($container->has(ArchExporter::class));
+        self::assertTrue($container->has(DocExporter::class));
 
-        $exporter = $container->get(ArchExporter::class);
+        $exporter = $container->get(DocExporter::class);
 
-        self::assertInstanceOf(ArchExporter::class, $exporter);
+        self::assertInstanceOf(DocExporter::class, $exporter);
     }
 }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Functional;
+namespace OpenSolid\Doc\Tests\Functional;
 
-use OpenSolid\ArchViewer\ArchExporter;
+use OpenSolid\Doc\DocExporter;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,7 +35,7 @@ final class ExportCommandTest extends TestCase
     public function itExportsFixturesToJsonFile(): void
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
-        $exporter = $container->get(ArchExporter::class);
+        $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
         $arch = $exporter->export($fixturesPath, 'test-project');
@@ -62,7 +62,7 @@ final class ExportCommandTest extends TestCase
     public function itExportsValidJsonAgainstSchema(): void
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
-        $exporter = $container->get(ArchExporter::class);
+        $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
         $arch = $exporter->export($fixturesPath, 'test-project');
@@ -99,7 +99,7 @@ final class ExportCommandTest extends TestCase
     public function itExportsExpectedArchitectureStructure(): void
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
-        $exporter = $container->get(ArchExporter::class);
+        $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
         $arch = $exporter->export($fixturesPath, 'test-project');
@@ -153,7 +153,7 @@ final class ExportCommandTest extends TestCase
     public function itMatchesExpectedJsonOutput(): void
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
-        $exporter = $container->get(ArchExporter::class);
+        $exporter = $container->get(DocExporter::class);
 
         $fixturesPath = \dirname(__DIR__).'/Unit/Fixtures/src';
         $arch = $exporter->export($fixturesPath, 'test-project');

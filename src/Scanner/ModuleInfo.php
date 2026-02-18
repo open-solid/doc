@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Scanner;
+namespace OpenSolid\Doc\Scanner;
 
 final readonly class ModuleInfo
 {

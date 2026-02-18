@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Parser;
+namespace OpenSolid\Doc\Parser;
 
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlockFactoryInterface;

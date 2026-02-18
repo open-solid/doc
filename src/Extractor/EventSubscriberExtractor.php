@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Extractor;
+namespace OpenSolid\Doc\Extractor;
 
-use OpenSolid\ArchViewer\Model\EventSubscriberOutput;
-use OpenSolid\ArchViewer\Parser\DocBlockParser;
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Model\EventSubscriberOutput;
+use OpenSolid\Doc\Parser\DocBlockParser;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use OpenSolid\Core\Infrastructure\Bus\Event\Subscriber\Attribute\AsDomainEventSubscriber;
 
 final readonly class EventSubscriberExtractor

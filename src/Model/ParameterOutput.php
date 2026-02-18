@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Model;
+namespace OpenSolid\Doc\Model;
 
 final readonly class ParameterOutput implements \JsonSerializable
 {

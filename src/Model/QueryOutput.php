@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Model;
+namespace OpenSolid\Doc\Model;
 
-use OpenSolid\ArchViewer\Model\OutputTypeOutput;
-use OpenSolid\ArchViewer\Model\ParameterOutput;
+use OpenSolid\Doc\Model\OutputTypeOutput;
+use OpenSolid\Doc\Model\ParameterOutput;
 
 final readonly class QueryOutput implements \JsonSerializable
 {

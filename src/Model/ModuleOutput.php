@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Model;
+namespace OpenSolid\Doc\Model;
 
-use OpenSolid\ArchViewer\Model\CommandOutput;
-use OpenSolid\ArchViewer\Model\DomainEventOutput;
-use OpenSolid\ArchViewer\Model\EventSubscriberOutput;
-use OpenSolid\ArchViewer\Model\ExternalCallOutput;
-use OpenSolid\ArchViewer\Model\QueryOutput;
+use OpenSolid\Doc\Model\CommandOutput;
+use OpenSolid\Doc\Model\DomainEventOutput;
+use OpenSolid\Doc\Model\EventSubscriberOutput;
+use OpenSolid\Doc\Model\ExternalCallOutput;
+use OpenSolid\Doc\Model\QueryOutput;
 
 final readonly class ModuleOutput implements \JsonSerializable
 {

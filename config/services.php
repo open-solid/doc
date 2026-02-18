@@ -1,17 +1,17 @@
 <?php
 
-use OpenSolid\ArchViewer\ArchExporter;
-use OpenSolid\ArchViewer\Command\ExportCommand;
-use OpenSolid\ArchViewer\Controller\ViewerController;
-use OpenSolid\ArchViewer\Extractor\CommandExtractor;
-use OpenSolid\ArchViewer\Extractor\DomainEventExtractor;
-use OpenSolid\ArchViewer\Extractor\EventSubscriberExtractor;
-use OpenSolid\ArchViewer\Extractor\ExternalCallExtractor;
-use OpenSolid\ArchViewer\Extractor\QueryExtractor;
-use OpenSolid\ArchViewer\Parser\DocBlockParser;
-use OpenSolid\ArchViewer\Parser\GenericTypeParser;
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleScanner;
+use OpenSolid\Doc\DocExporter;
+use OpenSolid\Doc\Command\ExportCommand;
+use OpenSolid\Doc\Controller\DocController;
+use OpenSolid\Doc\Extractor\CommandExtractor;
+use OpenSolid\Doc\Extractor\DomainEventExtractor;
+use OpenSolid\Doc\Extractor\EventSubscriberExtractor;
+use OpenSolid\Doc\Extractor\ExternalCallExtractor;
+use OpenSolid\Doc\Extractor\QueryExtractor;
+use OpenSolid\Doc\Parser\DocBlockParser;
+use OpenSolid\Doc\Parser\GenericTypeParser;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleScanner;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -62,7 +62,7 @@ return static function (ContainerConfigurator $container): void {
         ]);
 
     // Main exporter
-    $services->set(ArchExporter::class)
+    $services->set(DocExporter::class)
         ->args([
             service(ModuleScanner::class),
             service(CommandExtractor::class),
@@ -75,13 +75,13 @@ return static function (ContainerConfigurator $container): void {
     // Console command
     $services->set('arch_viewer.arch_export_command', ExportCommand::class)
         ->args([
-            service(ArchExporter::class),
+            service(DocExporter::class),
             param('kernel.project_dir'),
         ])
         ->tag('console.command');
 
     // Controller
-    $services->set(ViewerController::class)
+    $services->set(DocController::class)
         ->args([
             service(UrlGeneratorInterface::class),
             service('arch_viewer.arch_export_command'),

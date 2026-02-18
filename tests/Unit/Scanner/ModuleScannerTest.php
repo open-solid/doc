@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Scanner;
+namespace OpenSolid\Doc\Tests\Unit\Scanner;
 
-use OpenSolid\ArchViewer\Scanner\ModuleScanner;
+use OpenSolid\Doc\Scanner\ModuleScanner;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -49,7 +49,7 @@ final class ModuleScannerTest extends TestCase
     public function itReturnsNullDescriptionWhenNoPhpDocBlock(): void
     {
         // Create a temporary module extension without PHPDoc
-        $tempDir = sys_get_temp_dir().'/arch-viewer-test-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/doc-test-'.uniqid();
         $moduleDir = $tempDir.'/TestContext/TestModule/Infrastructure';
         mkdir($moduleDir, 0777, true);
 
@@ -88,7 +88,7 @@ PHP;
     public function itExtractsMultiLineDescription(): void
     {
         // Create a temporary module extension with multi-line PHPDoc
-        $tempDir = sys_get_temp_dir().'/arch-viewer-test-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/doc-test-'.uniqid();
         $moduleDir = $tempDir.'/TestContext/MultiLine/Infrastructure';
         mkdir($moduleDir, 0777, true);
 

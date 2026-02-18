@@ -1,11 +1,12 @@
 {
-    "name": "open-solid/arch-viewer",
+    "name": "open-solid/doc",
     "type": "symfony-bundle",
     "license": "MIT",
     "description": "Export and visualize your OpenSolid project architecture",
     "minimum-stability": "stable",
     "require": {
         "php": ">=8.5",
+        "open-solid/core": "dev-main",
         "opis/json-schema": "^2.6",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpstan": "^2.1",
@@ -13,7 +14,6 @@
         "symfony/framework-bundle": "^7.4|^8.0"
     },
     "require-dev": {
-        "open-solid/core": "@dev",
         "phpunit/phpunit": "^12.5"
     },
     "config": {
@@ -21,12 +21,12 @@
     },
     "autoload": {
         "psr-4": {
-            "OpenSolid\\ArchViewer\\": "src/"
+            "OpenSolid\\Doc\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenSolid\\ArchViewer\\Tests\\": "tests/",
+            "OpenSolid\\Doc\\Tests\\": "tests/",
             "App\\": "tests/Unit/Fixtures/src/"
         }
     }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Functional;
+namespace OpenSolid\Doc\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ViewerControllerTest extends TestCase
+final class DocControllerTest extends TestCase
 {
     private TestKernel $kernel;
 

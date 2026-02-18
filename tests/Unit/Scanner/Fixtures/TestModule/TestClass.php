@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Scanner\Fixtures\TestModule;
+namespace OpenSolid\Doc\Tests\Unit\Scanner\Fixtures\TestModule;
 
 class TestClass
 {

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Extractor;
+namespace OpenSolid\Doc\Extractor;
 
-use OpenSolid\ArchViewer\Model\DomainEventOutput;
-use OpenSolid\ArchViewer\Model\ParameterOutput;
-use OpenSolid\ArchViewer\Parser\DocBlockParser;
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Model\DomainEventOutput;
+use OpenSolid\Doc\Model\ParameterOutput;
+use OpenSolid\Doc\Parser\DocBlockParser;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use OpenSolid\Core\Domain\Event\Message\DomainEvent;
 
 final readonly class DomainEventExtractor

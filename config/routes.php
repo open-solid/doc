@@ -1,20 +1,20 @@
 <?php
 
-use OpenSolid\ArchViewer\Controller\ViewerController;
+use OpenSolid\Doc\Controller\DocController;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return static function (RoutingConfigurator $routes): void {
     $routes
         ->add('arch_viewer_controller', '/arch')
-            ->controller(ViewerController::class)
+            ->controller(DocController::class)
             ->methods(['GET'])
 
         ->add('arch_json_controller', '/arch.json')
-            ->controller(ViewerController::class.'::archJson')
+            ->controller(DocController::class.'::archJson')
             ->methods(['GET'])
 
         ->add('arch_json_update_controller', '/arch.json')
-            ->controller(ViewerController::class.'::updateArchJson')
+            ->controller(DocController::class.'::updateArchJson')
             ->methods(['POST'])
     ;
 };

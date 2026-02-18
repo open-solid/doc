@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Parser;
+namespace OpenSolid\Doc\Tests\Unit\Parser;
 
-use OpenSolid\ArchViewer\Parser\GenericTypeParser;
+use OpenSolid\Doc\Parser\GenericTypeParser;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -38,7 +38,7 @@ final class GenericTypeParserTest extends TestCase
 
         self::assertNotNull($result);
         self::assertSame('UserDto', $result['type']);
-        self::assertSame('OpenSolid\ArchViewer\Tests\Unit\Parser\UserDto', $result['class']);
+        self::assertSame('OpenSolid\Doc\Tests\Unit\Parser\UserDto', $result['class']);
     }
 
     #[Test]

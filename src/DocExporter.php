@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer;
+namespace OpenSolid\Doc;
 
-use OpenSolid\ArchViewer\Extractor\CommandExtractor;
-use OpenSolid\ArchViewer\Extractor\DomainEventExtractor;
-use OpenSolid\ArchViewer\Extractor\EventSubscriberExtractor;
-use OpenSolid\ArchViewer\Extractor\ExternalCallExtractor;
-use OpenSolid\ArchViewer\Extractor\QueryExtractor;
-use OpenSolid\ArchViewer\Model\ArchOutput;
-use OpenSolid\ArchViewer\Model\ContextOutput;
-use OpenSolid\ArchViewer\Model\MetaOutput;
-use OpenSolid\ArchViewer\Model\ModuleOutput;
-use OpenSolid\ArchViewer\Scanner\ModuleScannerInterface;
+use OpenSolid\Doc\Extractor\CommandExtractor;
+use OpenSolid\Doc\Extractor\DomainEventExtractor;
+use OpenSolid\Doc\Extractor\EventSubscriberExtractor;
+use OpenSolid\Doc\Extractor\ExternalCallExtractor;
+use OpenSolid\Doc\Extractor\QueryExtractor;
+use OpenSolid\Doc\Model\ArchOutput;
+use OpenSolid\Doc\Model\ContextOutput;
+use OpenSolid\Doc\Model\MetaOutput;
+use OpenSolid\Doc\Model\ModuleOutput;
+use OpenSolid\Doc\Scanner\ModuleScannerInterface;
 
-final readonly class ArchExporter
+final readonly class DocExporter
 {
     public function __construct(
         private ModuleScannerInterface $moduleScanner,

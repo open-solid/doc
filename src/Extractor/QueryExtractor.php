@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Extractor;
+namespace OpenSolid\Doc\Extractor;
 
-use OpenSolid\ArchViewer\Model\OutputTypeOutput;
-use OpenSolid\ArchViewer\Model\ParameterOutput;
-use OpenSolid\ArchViewer\Model\QueryOutput;
-use OpenSolid\ArchViewer\Parser\DocBlockParser;
-use OpenSolid\ArchViewer\Parser\GenericTypeParser;
-use OpenSolid\ArchViewer\Scanner\ClassScanner;
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
+use OpenSolid\Doc\Model\OutputTypeOutput;
+use OpenSolid\Doc\Model\ParameterOutput;
+use OpenSolid\Doc\Model\QueryOutput;
+use OpenSolid\Doc\Parser\DocBlockParser;
+use OpenSolid\Doc\Parser\GenericTypeParser;
+use OpenSolid\Doc\Scanner\ClassScanner;
+use OpenSolid\Doc\Scanner\ModuleInfo;
 use OpenSolid\Core\Application\Query\Message\Query;
 
 final readonly class QueryExtractor

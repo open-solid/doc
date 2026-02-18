@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Tests\Unit\Fixtures;
+namespace OpenSolid\Doc\Tests\Unit\Fixtures;
 
-use OpenSolid\ArchViewer\Scanner\ModuleInfo;
-use OpenSolid\ArchViewer\Scanner\ModuleScannerInterface;
+use OpenSolid\Doc\Scanner\ModuleInfo;
+use OpenSolid\Doc\Scanner\ModuleScannerInterface;
 
 /**
  * Stub module scanner for testing that returns predefined modules.

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OpenSolid\ArchViewer\Model;
+namespace OpenSolid\Doc\Model;
 
-use OpenSolid\ArchViewer\Model\ModuleOutput;
+use OpenSolid\Doc\Model\ModuleOutput;
 
 final readonly class ContextOutput implements \JsonSerializable
 {
