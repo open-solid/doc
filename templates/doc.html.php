@@ -1012,7 +1012,7 @@
             const description = findCallDescription(item.targetClass, item.type);
             const badgeColor = item.type === 'command' ? 'emerald' : 'violet';
             return `
-                <article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
+                <article class="rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 class="text-base font-semibold cursor-help border-b border-dashed border-slate-400 dark:border-slate-600" title="${h(item.sourceClass)}">${h(item.source)}</h3>
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${color}-100 dark:bg-${color}-900/50 text-${color}-700 dark:text-${color}-300">calls</span>
@@ -1239,7 +1239,7 @@
             const canvasId = `subscriber-${index}-${Date.now()}`;
             const eventLoc = findEventLocation(item.eventClass);
             return `
-                <article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">
+                <article class="rounded-lg p-4">
                     <div class="flex items-center gap-2 mb-1">
                         <h3 class="text-base font-semibold cursor-help border-b border-dashed border-slate-400 dark:border-slate-600" title="${h(item.class)}">${h(item.name)}</h3>
                         <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-${color}-100 dark:bg-${color}-900/50 text-${color}-700 dark:text-${color}-300">subscriber</span>
@@ -1506,7 +1506,7 @@
                     </a></div>`;
             }
 
-            return `<article class="rounded-lg bg-${color}-50/50 dark:bg-${color}-900/10 p-4">${content}</article>`;
+            return `<article class="rounded-lg p-4">${content}</article>`;
         }
     })();
     </script>
