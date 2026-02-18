@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architecture Overview</title>
+    <title>Project - Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
     <script>
@@ -96,7 +96,7 @@
                     </div>
                     <div>
                         <span id="project-name" class="text-lg font-semibold">Loading...</span>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Architecture Overview</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Documentation</p>
                     </div>
                 </a>
             </div>
@@ -149,7 +149,7 @@
     <template id="tpl-overview">
         <div class="fade-in">
             <header class="mb-12">
-                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Architecture Overview</h1>
+                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">Overview</h1>
                 <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-3xl">
                     Explore the domain-driven architecture of <strong class="text-primary-600 dark:text-primary-400" data-project></strong>.
                     Navigate through bounded contexts, modules, commands, queries, and domain events.
@@ -281,7 +281,7 @@
 
         function init() {
             $('#project-name').textContent = data.meta.project;
-            document.title = `${data.meta.project} - Architecture`;
+            document.title = `${data.meta.project} - Documentation`;
             renderNav();
             navigate('overview');
             document.body.onclick = e => {
@@ -374,28 +374,36 @@
                 </div>
             `).join('');
 
-            $('[data-contexts]', tpl).innerHTML = data.contexts.map(ctx => `
-                <article class="card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                    <header class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
+            const contextsEl = $('[data-contexts]', tpl);
+            if (data.contexts.length === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.className = 'text-slate-500 dark:text-slate-400 col-span-2';
+                emptyMsg.textContent = 'No bounded contexts found.';
+                contextsEl.appendChild(emptyMsg);
+            } else {
+                contextsEl.innerHTML = data.contexts.map(ctx => `
+                    <article class="card bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                        <header class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
+                                </div>
+                                <h3 class="text-lg font-semibold">${h(ctx.name)}</h3>
                             </div>
-                            <h3 class="text-lg font-semibold">${h(ctx.name)}</h3>
-                        </div>
-                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${ctx.modules.length} module${ctx.modules.length !== 1 ? 's' : ''}</span>
-                    </header>
-                    <ul class="space-y-2">
-                        ${ctx.modules.map(mod => `
-                            <li><a href="#" data-nav="module:${h(ctx.name)}:${h(mod.name)}" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
-                                ${h(mod.name)}
-                                <span class="ml-auto text-xs text-slate-400">${(mod.commands?.length || 0) + (mod.queries?.length || 0)} ops</span>
-                            </a></li>
-                        `).join('')}
-                    </ul>
-                </article>
-            `).join('');
+                            <span class="text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${ctx.modules.length} module${ctx.modules.length !== 1 ? 's' : ''}</span>
+                        </header>
+                        <ul class="space-y-2">
+                            ${ctx.modules.map(mod => `
+                                <li><a href="#" data-nav="module:${h(ctx.name)}:${h(mod.name)}" class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                                    ${h(mod.name)}
+                                    <span class="ml-auto text-xs text-slate-400">${(mod.commands?.length || 0) + (mod.queries?.length || 0)} ops</span>
+                                </a></li>
+                            `).join('')}
+                        </ul>
+                    </article>
+                `).join('');
+            }
 
             $('#content').replaceChildren(tpl);
             initContextMap();
