@@ -5,6 +5,7 @@ export interface ArchData {
 
 export interface Meta {
   generatedAt: string;
+  company: string;
   project: string;
 }
 

@@ -26,7 +26,7 @@ export function Sidebar() {
           </div>
           <div>
             <span className="text-lg font-semibold">{data?.meta.project ?? 'Loading...'}</span>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Documentation</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{data?.meta.company ?? 'Documentation'}</p>
           </div>
         </a>
       </div>
