@@ -79,8 +79,8 @@ export const SECTION_CONFIG: SectionConfig[] = [
 ];
 
 export const STAT_COLORS: Record<string, ColorName> = {
-  Contexts: 'primary',
   Modules: 'primary',
+  Endpoints: 'cyan',
   Commands: 'emerald',
   Queries: 'violet',
   Events: 'amber',

@@ -4,8 +4,8 @@ import { STAT_COLORS, COLOR_CLASSES, SECTION_CONFIG } from '../../constants';
 import { SVG_PATHS } from '../../constants';
 
 const STAT_ICONS: Record<string, string> = {
-  Contexts: SVG_PATHS.folder,
   Modules: SVG_PATHS.module,
+  Endpoints: SVG_PATHS.endpoint,
   Commands: SECTION_CONFIG.find(s => s.key === 'commands')!.iconPath,
   Queries: SECTION_CONFIG.find(s => s.key === 'queries')!.iconPath,
   Events: SECTION_CONFIG.find(s => s.key === 'domainEvents')!.iconPath,
@@ -26,13 +26,14 @@ export function StatsGrid() {
 
   const stats = useMemo(() => {
     if (!data) return [];
-    const counts: Record<string, number> = { Contexts: data.contexts.length, Modules: 0, Commands: 0, Queries: 0, Events: 0 };
+    const counts: Record<string, number> = { Modules: 0, Endpoints: 0, Commands: 0, Queries: 0, Events: 0 };
     data.contexts.forEach(ctx => ctx.modules.forEach(mod => {
       counts['Modules']++;
       counts['Commands'] += mod.commands?.length ?? 0;
       counts['Queries'] += mod.queries?.length ?? 0;
       counts['Events'] += mod.domainEvents?.length ?? 0;
     }));
+    counts['Endpoints'] = counts['Commands'] + counts['Queries'];
     return Object.entries(counts).map(([label, value]) => ({ label, value, color: STAT_COLORS[label] ?? 'primary' as const }));
   }, [data]);
 
