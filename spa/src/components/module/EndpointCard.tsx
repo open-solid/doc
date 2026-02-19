@@ -42,6 +42,13 @@ const KNOWN_FORMATS = new Set([
   'int32', 'int64', 'float', 'double',
 ]);
 
+function normalizeTypeName(raw: string): string {
+  let name = raw.replace(/\.jsonld$/, '');
+  const dotIdx = name.lastIndexOf('.');
+  if (dotIdx !== -1) name = name.slice(dotIdx + 1);
+  return name;
+}
+
 function getSchemaType(schema: SchemaObject | undefined, spec?: OpenApiSpec): string {
   if (!schema) return 'any';
   if (schema.$ref && spec) {
@@ -49,9 +56,9 @@ function getSchemaType(schema: SchemaObject | undefined, spec?: OpenApiSpec): st
     if (resolved.enum && resolved.enum.length > 0) {
       return resolved.enum.map(v => `"${v}"`).join(' or ');
     }
-    return schema.$ref.split('/').pop() ?? 'object';
+    return normalizeTypeName(schema.$ref.split('/').pop() ?? 'object');
   }
-  if (schema.$ref) return schema.$ref.split('/').pop() ?? 'object';
+  if (schema.$ref) return normalizeTypeName(schema.$ref.split('/').pop() ?? 'object');
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum.map(v => `"${v}"`).join(' or ');
   }
