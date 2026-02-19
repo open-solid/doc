@@ -13,8 +13,8 @@ class OpenSolidDocBundle extends AbstractBundle
     {
         $definition->rootNode()
             ->children()
-                ->scalarNode('company')->defaultValue('')->end()
-                ->scalarNode('project')->defaultValue('')->end()
+                ->scalarNode('company')->defaultValue('Company')->end()
+                ->scalarNode('project')->defaultValue('Project')->end()
             ->end();
     }
 
