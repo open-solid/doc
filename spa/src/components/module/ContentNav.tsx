@@ -55,16 +55,18 @@ export function ContentNav({ items }: ContentNavProps) {
             <button
               type="button"
               onClick={() => handleClick(item.id)}
-              className={`w-full text-left text-xs px-3 py-1.5 rounded-md truncate transition-colors cursor-pointer ${
+              className={`w-full text-left text-xs px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                item.method ? 'flex items-center justify-between gap-1.5' : 'truncate'
+              } ${
                 activeId === item.id
                   ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
               }`}
               title={item.label}
             >
-              {item.label}
+              <span className="truncate">{item.label}</span>
               {item.method && (
-                  <span className={`text-[10px] uppercase ml-1.5 ${METHOD_TEXT_COLORS[item.method] ?? 'text-slate-500'}`}>
+                <span className={`text-[10px] uppercase shrink-0 ${METHOD_TEXT_COLORS[item.method] ?? 'text-slate-500'}`}>
                   {item.method}
                 </span>
               )}
