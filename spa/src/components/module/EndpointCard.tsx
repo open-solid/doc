@@ -98,7 +98,7 @@ function AttributeList({ title, attributes, children }: { title: string; attribu
 
   return (
     <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/50">
-      {children ?? <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">{title}</h4>}
+      {children ?? <h4 className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">{title}</h4>}
       <div className="space-y-4">
         {attributes.map((attr, i) => (
           <div key={attr.name} className={i < attributes.length - 1 ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
@@ -212,17 +212,17 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           {hasReturns && (
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700/50">
               <div className="flex items-center gap-2 mb-4">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Returns</h4>
+                <h4 className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">Returns</h4>
                 <div className="flex gap-1">
                   {responses.map(r => (
                     <button
                       key={r.code}
                       type="button"
                       onClick={() => setActiveResponseCode(r.code)}
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors ${
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border transition-colors ${
                         r.code === activeResponseCode
-                          ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                          : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600'
+                          ? 'border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'border-slate-300 dark:border-slate-600 bg-transparent text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                       }`}
                     >
                       {r.code}
