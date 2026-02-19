@@ -33,14 +33,32 @@ interface Attribute {
   children?: Attribute[];
 }
 
-function getSchemaType(schema: SchemaObject | undefined): string {
+function getSchemaType(schema: SchemaObject | undefined, spec?: OpenApiSpec): string {
   if (!schema) return 'any';
+  if (schema.$ref && spec) {
+    const resolved = resolveSchema(schema, spec);
+    if (resolved.enum && resolved.enum.length > 0) {
+      return resolved.enum.map(v => `"${v}"`).join(' or ');
+    }
+    return schema.$ref.split('/').pop() ?? 'object';
+  }
   if (schema.$ref) return schema.$ref.split('/').pop() ?? 'object';
+  if (schema.enum && schema.enum.length > 0) {
+    return schema.enum.map(v => `"${v}"`).join(' or ');
+  }
   if (Array.isArray(schema.type)) {
     const types = (schema.type as string[]).filter(t => t !== 'null');
     return types.join(' or ') || 'any';
   }
-  if (schema.type === 'array' && schema.items) return `${getSchemaType(schema.items)}[]`;
+  if (schema.type === 'array' && schema.items) {
+    const itemType = getSchemaType(schema.items, spec);
+    return `array of ${itemType}`;
+  }
+  const union = schema.oneOf ?? schema.anyOf;
+  if (union && union.length > 0) {
+    const types = union.map(s => getSchemaType(s, spec)).filter(t => t !== 'null');
+    return types.join(' or ') || 'any';
+  }
   return schema.type ?? 'any';
 }
 
@@ -99,7 +117,7 @@ function getNestedChildren(schema: SchemaObject, spec: OpenApiSpec, depth = 0): 
     const resolvedProp = resolveSchema(propSchema, spec);
     children.push({
       name,
-      type: getSchemaType(propSchema),
+      type: getSchemaType(propSchema, spec),
       optional: !required.has(name) || isNullableType(propSchema),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec, depth + 1),
@@ -115,7 +133,7 @@ function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[]
     const resolvedProp = resolveSchema(propSchema, spec);
     attrs.push({
       name,
-      type: getSchemaType(propSchema),
+      type: getSchemaType(propSchema, spec),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec),
     });
@@ -191,15 +209,15 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const pathParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'path')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema), description: p.description })),
-    [endpoint],
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), description: p.description })),
+    [endpoint, spec],
   );
 
   const queryParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'query')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
-    [endpoint],
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
+    [endpoint, spec],
   );
 
   const bodyParams = useMemo(() => {
@@ -217,7 +235,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
         const resolvedProp = resolveSchema(propSchema, spec);
         attrs.push({
           name,
-          type: getSchemaType(propSchema),
+          type: getSchemaType(propSchema, spec),
           optional: !requiredFields.has(name) || isNullableType(propSchema),
           description: resolvedProp.description,
           children: getNestedChildren(propSchema, spec),
