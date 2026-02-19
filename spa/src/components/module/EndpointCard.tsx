@@ -30,6 +30,7 @@ interface Attribute {
   type: string;
   optional?: boolean;
   description?: string;
+  children?: Attribute[];
 }
 
 function getSchemaType(schema: SchemaObject | undefined): string {
@@ -79,6 +80,34 @@ function collectProperties(schema: SchemaObject, spec: OpenApiSpec): Record<stri
   return props;
 }
 
+function getNestedChildren(schema: SchemaObject, spec: OpenApiSpec, depth = 0): Attribute[] | undefined {
+  if (depth > 4) return undefined;
+  const resolved = resolveSchema(schema, spec);
+
+  // For arrays, look at the items schema
+  let target = resolved;
+  if (resolved.type === 'array' && resolved.items) {
+    target = resolveSchema(resolved.items, spec);
+  }
+
+  const props = collectProperties(target, spec);
+  if (Object.keys(props).length === 0) return undefined;
+
+  const required = new Set(target.required ?? []);
+  const children: Attribute[] = [];
+  for (const [name, propSchema] of Object.entries(props)) {
+    const resolvedProp = resolveSchema(propSchema, spec);
+    children.push({
+      name,
+      type: getSchemaType(propSchema),
+      optional: !required.has(name) || isNullableType(propSchema),
+      description: resolvedProp.description,
+      children: getNestedChildren(propSchema, spec, depth + 1),
+    });
+  }
+  return children.length > 0 ? children : undefined;
+}
+
 function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[] {
   const props = collectProperties(schema, spec);
   const attrs: Attribute[] = [];
@@ -88,9 +117,48 @@ function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[]
       name,
       type: getSchemaType(propSchema),
       description: resolvedProp.description,
+      children: getNestedChildren(propSchema, spec),
     });
   }
   return attrs;
+}
+
+function AttributeRow({ attr, isLast }: { attr: Attribute; isLast: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasChildren = attr.children && attr.children.length > 0;
+
+  return (
+    <div className={!isLast ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
+      <div className="flex items-baseline gap-2">
+        {hasChildren && (
+          <button
+            type="button"
+            onClick={() => setExpanded(e => !e)}
+            className="self-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          >
+            <svg className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+        <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
+        {attr.optional && (
+          <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
+        )}
+        <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
+      </div>
+      {attr.description && (
+        <p className={`mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${hasChildren ? 'ml-[22px]' : ''}`}>{attr.description}</p>
+      )}
+      {hasChildren && expanded && (
+        <div className="ml-[22px] mt-3 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-3">
+          {attr.children!.map((child, j) => (
+            <AttributeRow key={child.name} attr={child} isLast={j === attr.children!.length - 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function AttributeList({ title, attributes, children }: { title: string; attributes: Attribute[]; children?: React.ReactNode }) {
@@ -101,18 +169,7 @@ function AttributeList({ title, attributes, children }: { title: string; attribu
       {children ?? <h4 className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">{title}</h4>}
       <div className="space-y-4">
         {attributes.map((attr, i) => (
-          <div key={attr.name} className={i < attributes.length - 1 ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
-              {attr.optional && (
-                <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
-              )}
-              <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
-            </div>
-            {attr.description && (
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{attr.description}</p>
-            )}
-          </div>
+          <AttributeRow key={attr.name} attr={attr} isLast={i === attributes.length - 1} />
         ))}
       </div>
     </div>
@@ -141,7 +198,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const queryParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'query')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema), optional: !p.required, description: p.description })),
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
     [endpoint],
   );
 
@@ -163,6 +220,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           type: getSchemaType(propSchema),
           optional: !requiredFields.has(name) || isNullableType(propSchema),
           description: resolvedProp.description,
+          children: getNestedChildren(propSchema, spec),
         });
       }
     }
@@ -244,15 +302,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
               {activeResponse && activeResponse.attributes.length > 0 ? (
                 <div className="space-y-4">
                   {activeResponse.attributes.map((attr, i) => (
-                    <div key={attr.name} className={i < activeResponse.attributes.length - 1 ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
-                        <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
-                      </div>
-                      {attr.description && (
-                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{attr.description}</p>
-                      )}
-                    </div>
+                    <AttributeRow key={attr.name} attr={attr} isLast={i === activeResponse.attributes.length - 1} />
                   ))}
                 </div>
               ) : activeResponse ? (
