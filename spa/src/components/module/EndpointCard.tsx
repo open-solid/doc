@@ -138,6 +138,13 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
     [endpoint],
   );
 
+  const queryParams = useMemo(() =>
+    endpoint.parameters
+      .filter(p => p.in === 'query')
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema), optional: !p.required, description: p.description })),
+    [endpoint],
+  );
+
   const bodyParams = useMemo(() => {
     const attrs: Attribute[] = [];
     const content = endpoint.requestBody?.content;
@@ -207,6 +214,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           )}
 
           <AttributeList title="Path parameters" attributes={pathParams} />
+          <AttributeList title="Query parameters" attributes={queryParams} />
           <AttributeList title="Body parameters" attributes={bodyParams} />
 
           {hasReturns && (
