@@ -13,6 +13,13 @@ function phpTemplatePlugin(): Plugin {
       for (const [fileName, chunk] of Object.entries(bundle)) {
         if (chunk.type === 'asset' && fileName.endsWith('.html')) {
           let html = chunk.source as string;
+
+          // Escape any `<?` sequences in the bundled JS so PHP does not
+          // interpret them as open tags (e.g. Prism grammar regexes).
+          html = html.replace(/<\?/g, '<?= "<?" ?>');
+
+          // Now inject intentional PHP template variables (these must
+          // not be escaped, so we apply them after the blanket escape).
           html = html.replace(/"__ARCH_JSON_URL__"/g, '"<?= $archJsonUrl ?>"');
           html = html.replace(/"__ARCH_JSON_UPDATE_URL__"/g, '"<?= $archJsonUpdateUrl ?>"');
           html = html.replace(/"__OPENAPI_JSON_URL__"/g, '"<?= $openapiJsonUrl ?>"');
