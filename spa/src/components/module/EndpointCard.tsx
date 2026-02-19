@@ -137,6 +137,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
             )}
           </div>
 
+          {endpoint.description && (
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">{endpoint.description}</h3>
+          )}
           {endpoint.summary && (
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{endpoint.summary}</p>
           )}
