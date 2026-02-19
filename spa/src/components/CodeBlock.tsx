@@ -1,13 +1,26 @@
-import { useState, useCallback } from 'react';
-import { Highlight, themes } from 'prism-react-renderer';
+import { useState, useCallback, useMemo } from 'react';
+import { Highlight, themes, type PrismTheme } from 'prism-react-renderer';
 import { useTheme } from '../hooks/useTheme';
 
-// Register PHP grammar — static imports run in order, and prism-setup
-// must come first to expose Prism globally for the component files.
+// Register extra Prism grammars — static imports run in order, and
+// prism-setup must come first to expose Prism globally for the components.
 import './prism-setup';
 import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-markup-templating';
 import 'prismjs/components/prism-php';
+
+function extendTheme(base: PrismTheme, extra: PrismTheme['styles']): PrismTheme {
+  return { ...base, styles: [...base.styles, ...extra] };
+}
+
+const darkTheme = extendTheme(themes.nightOwl, [
+  { types: ['parameter'], style: { color: '#ecc48d', fontStyle: 'italic' } },
+]);
+
+const lightTheme = extendTheme(themes.github, [
+  { types: ['parameter'], style: { color: '#b08040', fontStyle: 'italic' } },
+]);
 
 interface CodeBlockProps {
   code: string;
@@ -25,7 +38,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     });
   }, [code]);
 
-  const theme = isDark ? themes.nightOwl : themes.github;
+  const theme = useMemo(() => isDark ? darkTheme : lightTheme, [isDark]);
 
   return (
     <Highlight theme={theme} code={code} language={language}>
