@@ -230,6 +230,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
                   ))}
                 </div>
               </div>
+              {activeResponse?.description && (
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{activeResponse.description}</p>
+              )}
               {activeResponse && activeResponse.attributes.length > 0 ? (
                 <div className="space-y-4">
                   {activeResponse.attributes.map((attr, i) => (
