@@ -48,7 +48,7 @@ export interface ResponseObject {
 
 export interface SchemaObject {
   $ref?: string;
-  type?: string;
+  type?: string | string[];
   format?: string;
   properties?: Record<string, SchemaObject>;
   required?: string[];

@@ -38,7 +38,11 @@ export function generateExampleJson(schema: SchemaObject, spec: OpenApiSpec, dep
     return resolved.enum[0];
   }
 
-  switch (resolved.type) {
+  const type = Array.isArray(resolved.type)
+    ? resolved.type.find((t: string) => t !== 'null') ?? resolved.type[0]
+    : resolved.type;
+
+  switch (type) {
     case 'object': {
       const obj: Record<string, unknown> = {};
       if (resolved.properties) {

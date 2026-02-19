@@ -28,14 +28,26 @@ const METHOD_TEXT_COLORS: Record<string, string> = {
 interface Attribute {
   name: string;
   type: string;
+  optional?: boolean;
   description?: string;
 }
 
 function getSchemaType(schema: SchemaObject | undefined): string {
   if (!schema) return 'any';
   if (schema.$ref) return schema.$ref.split('/').pop() ?? 'object';
+  if (Array.isArray(schema.type)) {
+    const types = (schema.type as string[]).filter(t => t !== 'null');
+    return types.join(' or ') || 'any';
+  }
   if (schema.type === 'array' && schema.items) return `${getSchemaType(schema.items)}[]`;
   return schema.type ?? 'any';
+}
+
+function isNullableType(schema: SchemaObject | undefined): boolean {
+  if (!schema) return false;
+  if (Array.isArray(schema.type)) return (schema.type as string[]).includes('null');
+  if (schema.nullable) return true;
+  return false;
 }
 
 function AttributeList({ title, attributes }: { title: string; attributes: Attribute[] }) {
@@ -49,6 +61,9 @@ function AttributeList({ title, attributes }: { title: string; attributes: Attri
           <div key={attr.name} className={i < attributes.length - 1 ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
+              {attr.optional && (
+                <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
+              )}
               <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
             </div>
             {attr.description && (
@@ -87,8 +102,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
       for (const [name, propSchema] of Object.entries(resolved.properties)) {
         const resolvedProp = resolveSchema(propSchema, spec);
         attrs.push({
-          name: requiredFields.has(name) ? name : `${name}?`,
+          name,
           type: getSchemaType(propSchema),
+          optional: !requiredFields.has(name) || isNullableType(propSchema),
           description: resolvedProp.description,
         });
       }
