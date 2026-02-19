@@ -75,7 +75,7 @@ export function ModulePage({ contextName, moduleName, initialTab }: ModulePagePr
     if (activeTab === 'endpoints') {
       return moduleEndpoints.map((ep, idx) => ({
         id: `endpoint-${idx}`,
-        label: ep.summary ?? ep.path,
+        label: ep.description ?? ep.path,
         method: ep.method,
       }));
     }

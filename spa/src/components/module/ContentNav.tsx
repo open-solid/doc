@@ -62,12 +62,12 @@ export function ContentNav({ items }: ContentNavProps) {
               }`}
               title={item.label}
             >
+              {item.label}
               {item.method && (
-                <span className={`font-bold uppercase mr-1.5 ${METHOD_TEXT_COLORS[item.method] ?? 'text-slate-500'}`}>
+                  <span className={`text-[10px] uppercase ml-1.5 ${METHOD_TEXT_COLORS[item.method] ?? 'text-slate-500'}`}>
                   {item.method}
                 </span>
               )}
-              {item.label}
             </button>
           </li>
         ))}
