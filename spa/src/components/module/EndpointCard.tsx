@@ -227,7 +227,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
                       key={r.code}
                       type="button"
                       onClick={() => setActiveResponseCode(r.code)}
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border transition-colors ${
+                      className={`text-[11px] font-semibold px-1.5 rounded-md border transition-colors ${
                         r.code === activeResponseCode
                           ? 'border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
                           : 'border-slate-300 dark:border-slate-600 bg-transparent text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
@@ -279,7 +279,14 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Response</h4>
+            <div className="flex items-center gap-2 mb-3">
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Response</h4>
+              {activeResponse && (
+                <span className="text-[11px] font-semibold px-1.5 rounded-md border border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900">
+                  {activeResponse.code}
+                </span>
+              )}
+            </div>
             {activeResponse?.json ? (
               <CodeBlock code={activeResponse.json} language="json" />
             ) : (
