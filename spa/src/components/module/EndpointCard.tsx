@@ -166,21 +166,23 @@ function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[]
   return attrs;
 }
 
-function AttributeRow({ attr, isLast }: { attr: Attribute; isLast: boolean }) {
+function AttributeRow({ attr, isLast, depth = 0 }: { attr: Attribute; isLast: boolean; depth?: number }) {
   const [expanded, setExpanded] = useState(false);
   const hasChildren = attr.children && attr.children.length > 0;
 
   return (
     <div className={!isLast ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
-      <div className="flex items-baseline gap-2">
+      <div className={`flex items-baseline gap-2 ${hasChildren ? '-ml-[22px]' : ''}`}>
         {hasChildren && (
           <button
             type="button"
             onClick={() => setExpanded(e => !e)}
-            className="self-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className={`self-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors${depth > 0 ? ' rounded bg-slate-200 dark:bg-slate-700 -ml-[2px] mr-[2px]' : ''}`}
           >
-            <svg className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {expanded
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />}
             </svg>
           </button>
         )}
@@ -197,9 +199,9 @@ function AttributeRow({ attr, isLast }: { attr: Attribute; isLast: boolean }) {
         <p className={`mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${hasChildren ? 'ml-[22px]' : ''}`}>{attr.description}</p>
       )}
       {hasChildren && expanded && (
-        <div className="ml-[22px] mt-3 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-3">
+        <div className="mt-3 pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-3">
           {attr.children!.map((child, j) => (
-            <AttributeRow key={child.name} attr={child} isLast={j === attr.children!.length - 1} />
+            <AttributeRow key={child.name} attr={child} isLast={j === attr.children!.length - 1} depth={depth + 1} />
           ))}
         </div>
       )}
