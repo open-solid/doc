@@ -28,10 +28,19 @@ const METHOD_TEXT_COLORS: Record<string, string> = {
 interface Attribute {
   name: string;
   type: string;
+  format?: string;
   optional?: boolean;
   description?: string;
   children?: Attribute[];
 }
+
+const KNOWN_FORMATS = new Set([
+  'date-time', 'date', 'time', 'duration',
+  'email', 'uri', 'uuid', 'ulid',
+  'iri', 'iri-reference',
+  'ipv4', 'ipv6', 'hostname',
+  'int32', 'int64', 'float', 'double',
+]);
 
 function getSchemaType(schema: SchemaObject | undefined, spec?: OpenApiSpec): string {
   if (!schema) return 'any';
@@ -60,6 +69,13 @@ function getSchemaType(schema: SchemaObject | undefined, spec?: OpenApiSpec): st
     return types.join(' or ') || 'any';
   }
   return schema.type ?? 'any';
+}
+
+function getSchemaFormat(schema: SchemaObject | undefined, spec?: OpenApiSpec): string | undefined {
+  if (!schema) return undefined;
+  const resolved = spec && schema.$ref ? resolveSchema(schema, spec) : schema;
+  if (resolved.format && KNOWN_FORMATS.has(resolved.format)) return resolved.format;
+  return undefined;
 }
 
 function isNullableType(schema: SchemaObject | undefined): boolean {
@@ -118,6 +134,7 @@ function getNestedChildren(schema: SchemaObject, spec: OpenApiSpec, depth = 0): 
     children.push({
       name,
       type: getSchemaType(propSchema, spec),
+      format: getSchemaFormat(propSchema, spec),
       optional: !required.has(name) || isNullableType(propSchema),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec, depth + 1),
@@ -134,6 +151,7 @@ function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[]
     attrs.push({
       name,
       type: getSchemaType(propSchema, spec),
+      format: getSchemaFormat(propSchema, spec),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec),
     });
@@ -164,6 +182,9 @@ function AttributeRow({ attr, isLast }: { attr: Attribute; isLast: boolean }) {
           <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
         )}
         <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
+        {attr.format && (
+          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400">{attr.format}</span>
+        )}
       </div>
       {attr.description && (
         <p className={`mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${hasChildren ? 'ml-[22px]' : ''}`}>{attr.description}</p>
@@ -209,14 +230,14 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const pathParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'path')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), description: p.description })),
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), format: getSchemaFormat(p.schema, spec), description: p.description })),
     [endpoint, spec],
   );
 
   const queryParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'query')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), format: getSchemaFormat(p.schema, spec), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
     [endpoint, spec],
   );
 
@@ -236,6 +257,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
         attrs.push({
           name,
           type: getSchemaType(propSchema, spec),
+          format: getSchemaFormat(propSchema, spec),
           optional: !requiredFields.has(name) || isNullableType(propSchema),
           description: resolvedProp.description,
           children: getNestedChildren(propSchema, spec),
@@ -314,7 +336,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
                   ))}
                 </div>
               </div>
-              {activeResponse?.description && (
+              {activeResponse?.description && activeResponse.attributes.length > 0 && (
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{activeResponse.description}</p>
               )}
               {activeResponse && activeResponse.attributes.length > 0 ? (
