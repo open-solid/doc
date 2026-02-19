@@ -3,16 +3,11 @@ import { generateExampleJson, resolveSchema } from './schema';
 
 export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiSpec): string {
   const origin = baseUrl && baseUrl !== '/' ? baseUrl.replace(/\/$/, '') : 'https://localhost';
-  const url = `${origin}${endpoint.path}`;
-  const parts: string[] = ['curl'];
 
-  if (endpoint.method !== 'get') {
-    parts.push(`-X ${endpoint.method.toUpperCase()}`);
-  }
-
-  // URL with path params as placeholders
-  let finalUrl = url;
+  // Build URL with path param placeholders and query params
+  let finalUrl = `${origin}${endpoint.path}`;
   const queryParams: string[] = [];
+  const extraLines: string[] = [];
 
   for (const param of endpoint.parameters) {
     if (param.in === 'path') {
@@ -20,7 +15,7 @@ export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
     } else if (param.in === 'query') {
       queryParams.push(`${param.name}=value`);
     } else if (param.in === 'header') {
-      parts.push(`-H "${param.name}: value"`);
+      extraLines.push(`-H "${param.name}: value"`);
     }
   }
 
@@ -28,7 +23,9 @@ export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
     finalUrl += `?${queryParams.join('&')}`;
   }
 
-  parts.push(`"${finalUrl}"`);
+  // First line: curl [-X METHOD] "URL"
+  const method = endpoint.method !== 'get' ? `-X ${endpoint.method.toUpperCase()} ` : '';
+  const firstLine = `curl ${method}"${finalUrl}"`;
 
   // Request body — check all common content types
   const content = endpoint.requestBody?.content;
@@ -41,11 +38,13 @@ export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
     : null;
 
   if (bodyEntry?.schema && contentType) {
-    parts.push(`-H "Content-Type: ${contentType}"`);
+    extraLines.push(`-H "Content-Type: ${contentType}"`);
     const resolved = resolveSchema(bodyEntry.schema, spec);
     const body = generateExampleJson(resolved, spec);
-    parts.push(`-d '${JSON.stringify(body, null, 2)}'`);
+    extraLines.push(`-d '${JSON.stringify(body, null, 2)}'`);
   }
 
-  return parts.join(' \\\n  ');
+  if (extraLines.length === 0) return firstLine;
+
+  return `${firstLine} \\\n  ${extraLines.join(' \\\n  ')}`;
 }
