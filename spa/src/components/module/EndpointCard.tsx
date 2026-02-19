@@ -66,55 +66,71 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
 
   const curlCommand = useMemo(() => generateCurl(endpoint, baseUrl, spec), [endpoint, baseUrl, spec]);
 
-  const { requiredAttrs, optionalAttrs } = useMemo(() => {
-    const required: Attribute[] = [];
-    const optional: Attribute[] = [];
+  const pathParams = useMemo(() =>
+    endpoint.parameters
+      .filter(p => p.in === 'path')
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema), description: p.description })),
+    [endpoint],
+  );
 
-    for (const param of endpoint.parameters) {
-      const attr: Attribute = {
-        name: param.name,
-        type: getSchemaType(param.schema),
-        description: param.description,
-      };
-      if (param.required) {
-        required.push(attr);
-      } else {
-        optional.push(attr);
+  const bodyParams = useMemo(() => {
+    const attrs: Attribute[] = [];
+    const content = endpoint.requestBody?.content;
+    const schema = content?.['application/json']?.schema
+      ?? content?.['application/ld+json']?.schema
+      ?? content?.['application/merge-patch+json']?.schema;
+    if (!schema) return attrs;
+
+    const resolved = resolveSchema(schema, spec);
+    const requiredFields = new Set(resolved.required ?? []);
+    if (resolved.properties) {
+      for (const [name, propSchema] of Object.entries(resolved.properties)) {
+        const resolvedProp = resolveSchema(propSchema, spec);
+        attrs.push({
+          name: requiredFields.has(name) ? name : `${name}?`,
+          type: getSchemaType(propSchema),
+          description: resolvedProp.description,
+        });
       }
     }
+    return attrs;
+  }, [endpoint, spec]);
 
-    const bodySchema = endpoint.requestBody?.content['application/json']?.schema;
-    if (bodySchema) {
-      const resolved = resolveSchema(bodySchema, spec);
-      const requiredFields = new Set(resolved.required ?? []);
-      if (resolved.properties) {
-        for (const [name, propSchema] of Object.entries(resolved.properties)) {
-          const resolvedProp = resolveSchema(propSchema, spec);
-          const attr: Attribute = {
-            name,
-            type: getSchemaType(propSchema),
-            description: resolvedProp.description,
-          };
-          if (requiredFields.has(name)) {
-            required.push(attr);
-          } else {
-            optional.push(attr);
-          }
-        }
+  const returns = useMemo(() => {
+    const attrs: Attribute[] = [];
+    const codes = Object.keys(endpoint.responses);
+    const successCode = codes.find(c => c.startsWith('2')) ?? codes[0];
+    if (!successCode) return attrs;
+    const response = endpoint.responses[successCode];
+    if (!response) return attrs;
+
+    const content = response.content;
+    const schema = content?.['application/json']?.schema
+      ?? content?.['application/ld+json']?.schema;
+    if (!schema) return attrs;
+
+    const resolved = resolveSchema(schema, spec);
+    if (resolved.properties) {
+      for (const [name, propSchema] of Object.entries(resolved.properties)) {
+        const resolvedProp = resolveSchema(propSchema, spec);
+        attrs.push({
+          name,
+          type: getSchemaType(propSchema),
+          description: resolvedProp.description,
+        });
       }
     }
-
-    return { requiredAttrs: required, optionalAttrs: optional };
+    return attrs;
   }, [endpoint, spec]);
 
   const responseJson = useMemo(() => {
-    // Pick the first success response (2xx) or fall back to first available
     const codes = Object.keys(endpoint.responses);
     const successCode = codes.find(c => c.startsWith('2')) ?? codes[0];
     if (!successCode) return null;
     const response = endpoint.responses[successCode];
     if (!response) return null;
-    const mediaType = response.content?.['application/json'];
+    const content = response.content;
+    const mediaType = content?.['application/json'] ?? content?.['application/ld+json'];
     if (!mediaType?.schema) return null;
     const resolved = resolveSchema(mediaType.schema, spec);
     return JSON.stringify(generateExampleJson(resolved, spec), null, 2);
@@ -144,8 +160,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{endpoint.summary}</p>
           )}
 
-          <AttributeList title="Required attributes" attributes={requiredAttrs} />
-          <AttributeList title="Optional attributes" attributes={optionalAttrs} />
+          <AttributeList title="Path parameters" attributes={pathParams} />
+          <AttributeList title="Body parameters" attributes={bodyParams} />
+          <AttributeList title="Returns" attributes={returns} />
         </div>
 
         {/* Right panel */}
