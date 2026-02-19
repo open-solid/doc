@@ -48,7 +48,7 @@ export function App() {
               <Sidebar />
               <main className="flex-1 ml-72 bg-grid">
                 <Header />
-                <div className="px-8 py-8 max-w-5xl">
+                <div className="px-8 py-8">
                   <MainContent />
                 </div>
               </main>
