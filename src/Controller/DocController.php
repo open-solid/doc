@@ -17,6 +17,7 @@ final readonly class DocController
         private UrlGeneratorInterface $urlGenerator,
         private ExportCommand $exportCommand,
         private string $archJsonPath,
+        private string $openapiJsonPath,
         private string $company,
         private string $project,
     ) {
@@ -26,6 +27,7 @@ final readonly class DocController
     {
         $archJsonUrl = $this->urlGenerator->generate('arch_json_controller');
         $archJsonUpdateUrl = $this->urlGenerator->generate('arch_json_update_controller');
+        $openapiJsonUrl = $this->urlGenerator->generate('arch_openapi_json_controller');
 
         ob_start();
         include __DIR__ . '/../../templates/doc.html.php';
@@ -36,8 +38,35 @@ final readonly class DocController
 
     public function archJson(): Response
     {
+        if (!file_exists($this->archJsonPath)) {
+            return new JsonResponse(
+                data: ['error' => 'Documentation not found. Please generate it first.'],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
         return new Response(
             content: file_get_contents($this->archJsonPath),
+            headers: [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ],
+        );
+    }
+
+    public function openapiJson(): Response
+    {
+        if (!file_exists($this->openapiJsonPath)) {
+            return new JsonResponse(
+                data: ['error' => 'OpenAPI documentation not found. Please generate it first.'],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        return new Response(
+            content: file_get_contents($this->openapiJsonPath),
             headers: [
                 'Content-Type' => 'application/json',
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',

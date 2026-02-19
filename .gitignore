@@ -1,5 +1,7 @@
 /vendor/
 /node_modules/
-composer.lock
 /.phpunit.cache/
 /config/reference.php
+arch.json
+composer.lock
+openapi.json

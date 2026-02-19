@@ -16,5 +16,9 @@ return static function (RoutingConfigurator $routes): void {
         ->add('arch_json_update_controller', '/arch.json')
             ->controller(DocController::class.'::updateArchJson')
             ->methods(['POST'])
+
+        ->add('arch_openapi_json_controller', '/openapi.json')
+            ->controller(DocController::class.'::openapiJson')
+            ->methods(['GET'])
     ;
 };

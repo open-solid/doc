@@ -1,6 +1,7 @@
 import { ThemeProvider } from './context/ThemeContext';
 import { NavigationProvider } from './context/NavigationContext';
 import { ArchDataProvider } from './context/ArchDataContext';
+import { OpenApiProvider } from './context/OpenApiContext';
 import { useNavigation } from './hooks/useNavigation';
 import { useArchData } from './hooks/useArchData';
 import { Sidebar } from './components/Sidebar';
@@ -41,18 +42,20 @@ export function App() {
   return (
     <ThemeProvider>
       <ArchDataProvider>
-        <NavigationProvider>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 ml-72 bg-grid">
-              <Header />
-              <div className="px-8 py-8 max-w-5xl">
-                <MainContent />
-              </div>
-            </main>
-          </div>
-          <Toast />
-        </NavigationProvider>
+        <OpenApiProvider>
+          <NavigationProvider>
+            <div className="flex min-h-screen">
+              <Sidebar />
+              <main className="flex-1 ml-72 bg-grid">
+                <Header />
+                <div className="px-8 py-8 max-w-5xl">
+                  <MainContent />
+                </div>
+              </main>
+            </div>
+            <Toast />
+          </NavigationProvider>
+        </OpenApiProvider>
       </ArchDataProvider>
     </ThemeProvider>
   );

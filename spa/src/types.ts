@@ -86,6 +86,7 @@ declare global {
     __ARCH_CONFIG__: {
       archJsonUrl: string;
       archJsonUpdateUrl: string;
+      openapiJsonUrl: string;
     };
   }
 }

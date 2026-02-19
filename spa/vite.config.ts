@@ -15,6 +15,7 @@ function phpTemplatePlugin(): Plugin {
           let html = chunk.source as string;
           html = html.replace(/"__ARCH_JSON_URL__"/g, '"<?= $archJsonUrl ?>"');
           html = html.replace(/"__ARCH_JSON_UPDATE_URL__"/g, '"<?= $archJsonUpdateUrl ?>"');
+          html = html.replace(/"__OPENAPI_JSON_URL__"/g, '"<?= $openapiJsonUrl ?>"');
 
           const phpFileName = 'doc.html.php';
           this.emitFile({
