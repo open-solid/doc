@@ -16,7 +16,7 @@
   --color-primary-950: #1e1b4b;
 }
 
-body { font-family: 'DM Sans', sans-serif; }
+body { font-family: 'ui-sans-serif', sans-serif; }
 code, .font-mono { font-family: 'Fira Code', monospace; }
 h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
 
