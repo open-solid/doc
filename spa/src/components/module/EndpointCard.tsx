@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import type { Endpoint, OpenApiSpec } from '../../openapi';
+import { useMemo } from 'react';
+import type { Endpoint, OpenApiSpec, SchemaObject } from '../../openapi';
 import { generateCurl } from '../../utils/curl';
 import { generateExampleJson, resolveSchema } from '../../utils/schema';
 import { CodeBlock } from '../CodeBlock';
@@ -17,40 +17,10 @@ const METHOD_COLORS: Record<string, string> = {
   delete: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
 
-interface AttributeRow {
+interface Attribute {
   name: string;
   type: string;
   description?: string;
-}
-
-function AttributeTable({ title, rows }: { title: string; rows: AttributeRow[] }) {
-  if (rows.length === 0) return null;
-
-  return (
-    <div className="mt-4">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">{title}</h4>
-      <div className="rounded-lg border border-slate-100 dark:border-slate-700/50 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700/50">
-              <th className="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Name</th>
-              <th className="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Type</th>
-              <th className="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(row => (
-              <tr key={row.name} className="border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="py-2 px-3 font-mono text-sm text-primary-600 dark:text-primary-400">{row.name}</td>
-                <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{row.type}</td>
-                <td className="py-2 px-3 text-slate-500 dark:text-slate-400 text-xs">{row.description ?? '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
 }
 
 function getSchemaType(schema: SchemaObject | undefined): string {
@@ -60,35 +30,51 @@ function getSchemaType(schema: SchemaObject | undefined): string {
   return schema.type ?? 'any';
 }
 
-import type { SchemaObject } from '../../openapi';
+function AttributeList({ title, attributes }: { title: string; attributes: Attribute[] }) {
+  if (attributes.length === 0) return null;
+
+  return (
+    <div className="mt-6">
+      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">{title}</h4>
+      <div className="space-y-4">
+        {attributes.map((attr, i) => (
+          <div key={attr.name} className={i < attributes.length - 1 ? 'pb-4 border-b border-slate-100 dark:border-slate-700/50' : ''}>
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
+              <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
+            </div>
+            {attr.description && (
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{attr.description}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
-  const responseCodes = Object.keys(endpoint.responses);
-  const [activeResponse, setActiveResponse] = useState(responseCodes[0] ?? '200');
-
   const baseUrl = spec.servers?.[0]?.url ?? '';
 
   const curlCommand = useMemo(() => generateCurl(endpoint, baseUrl, spec), [endpoint, baseUrl, spec]);
 
-  const { requiredRows, optionalRows } = useMemo(() => {
-    const required: AttributeRow[] = [];
-    const optional: AttributeRow[] = [];
+  const { requiredAttrs, optionalAttrs } = useMemo(() => {
+    const required: Attribute[] = [];
+    const optional: Attribute[] = [];
 
-    // Parameters
     for (const param of endpoint.parameters) {
-      const row: AttributeRow = {
+      const attr: Attribute = {
         name: param.name,
-        type: `${param.in} · ${getSchemaType(param.schema)}`,
+        type: getSchemaType(param.schema),
         description: param.description,
       };
       if (param.required) {
-        required.push(row);
+        required.push(attr);
       } else {
-        optional.push(row);
+        optional.push(attr);
       }
     }
 
-    // Request body properties
     const bodySchema = endpoint.requestBody?.content['application/json']?.schema;
     if (bodySchema) {
       const resolved = resolveSchema(bodySchema, spec);
@@ -96,42 +82,46 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
       if (resolved.properties) {
         for (const [name, propSchema] of Object.entries(resolved.properties)) {
           const resolvedProp = resolveSchema(propSchema, spec);
-          const row: AttributeRow = {
+          const attr: Attribute = {
             name,
-            type: `body · ${getSchemaType(propSchema)}`,
+            type: getSchemaType(propSchema),
             description: resolvedProp.description,
           };
           if (requiredFields.has(name)) {
-            required.push(row);
+            required.push(attr);
           } else {
-            optional.push(row);
+            optional.push(attr);
           }
         }
       }
     }
 
-    return { requiredRows: required, optionalRows: optional };
+    return { requiredAttrs: required, optionalAttrs: optional };
   }, [endpoint, spec]);
 
   const responseJson = useMemo(() => {
-    const response = endpoint.responses[activeResponse];
+    // Pick the first success response (2xx) or fall back to first available
+    const codes = Object.keys(endpoint.responses);
+    const successCode = codes.find(c => c.startsWith('2')) ?? codes[0];
+    if (!successCode) return null;
+    const response = endpoint.responses[successCode];
     if (!response) return null;
     const mediaType = response.content?.['application/json'];
     if (!mediaType?.schema) return null;
     const resolved = resolveSchema(mediaType.schema, spec);
     return JSON.stringify(generateExampleJson(resolved, spec), null, 2);
-  }, [endpoint, activeResponse, spec]);
+  }, [endpoint, spec]);
 
   return (
     <article className="item-card rounded-lg bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Left panel */}
-        <div className="p-5 lg:border-r border-slate-200 dark:border-slate-700/50">
-          <div className="flex items-center gap-2 flex-wrap mb-2">
-            <span className={`inline-block px-2 py-0.5 text-xs font-bold uppercase rounded ${METHOD_COLORS[endpoint.method] ?? 'bg-slate-100 text-slate-700'}`}>
+        <div className="p-6 lg:border-r border-slate-200 dark:border-slate-700/50">
+          <div className="flex items-center gap-2 mb-3">
+            <span className={`inline-block px-2 py-0.5 text-[11px] font-bold uppercase rounded ${METHOD_COLORS[endpoint.method] ?? 'bg-slate-100 text-slate-700'}`}>
               {endpoint.method}
             </span>
-            <code className="text-sm font-mono text-slate-800 dark:text-slate-200">{endpoint.path}</code>
+            <span className="text-sm text-slate-500 dark:text-slate-400 font-mono">{endpoint.path}</span>
             {endpoint.deprecated && (
               <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300">
                 deprecated
@@ -140,46 +130,31 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           </div>
 
           {endpoint.summary && (
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">{endpoint.summary}</h3>
-          )}
-          {endpoint.description && (
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{endpoint.description}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{endpoint.summary}</p>
           )}
 
-          <AttributeTable title="Required attributes" rows={requiredRows} />
-          <AttributeTable title="Optional attributes" rows={optionalRows} />
+          <AttributeList title="Required attributes" attributes={requiredAttrs} />
+          <AttributeList title="Optional attributes" attributes={optionalAttrs} />
         </div>
 
         {/* Right panel */}
-        <div className="p-5 bg-slate-50 dark:bg-slate-900/50">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Request</h4>
-              <span className="text-[11px] font-medium text-slate-400">cURL</span>
+        <div className="p-6 bg-slate-50 dark:bg-slate-900/50">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Request</h4>
+              <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
+            </div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`inline-block px-2 py-0.5 text-[11px] font-bold uppercase rounded ${METHOD_COLORS[endpoint.method] ?? 'bg-slate-100 text-slate-700'}`}>
+                {endpoint.method}
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{endpoint.path}</span>
             </div>
             <CodeBlock code={curlCommand} language="bash" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Response</h4>
-              <div className="flex gap-1">
-                {responseCodes.map(code => (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => setActiveResponse(code)}
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors ${
-                      code === activeResponse
-                        ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    {code}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Response</h4>
             {responseJson ? (
               <CodeBlock code={responseJson} language="json" />
             ) : (

@@ -39,32 +39,25 @@ export function ModulePage({ contextName, moduleName, initialTab }: ModulePagePr
   const hasEndpoints = moduleEndpoints.length > 0;
   const hasSections = availableSections.length > 0 || hasEndpoints;
 
-  const initialActiveKey = useMemo(() => {
-    if (initialTab === 'endpoints' && hasEndpoints) return 'endpoints';
-    if (initialTab) {
-      const found = availableSections.find(s => s.key === initialTab);
+  function resolveTab(tab: string | undefined, endpoints: boolean): string {
+    if (tab === 'endpoints' && endpoints) return 'endpoints';
+    if (tab) {
+      const found = availableSections.find(s => s.key === tab);
       if (found) return found.key;
     }
-    if (hasEndpoints) return 'endpoints';
+    if (endpoints) return 'endpoints';
     return availableSections[0]?.key ?? '';
-  }, [initialTab, availableSections, hasEndpoints]);
+  }
 
-  const [activeTab, setActiveTab] = useState(initialActiveKey);
+  const [activeTab, setActiveTab] = useState(() => resolveTab(initialTab, hasEndpoints));
 
-  // Reset active tab when module or requested tab changes
-  const [prevNav, setPrevNav] = useState(`${contextName}:${moduleName}:${initialTab ?? ''}`);
-  const currentNav = `${contextName}:${moduleName}:${initialTab ?? ''}`;
-  if (currentNav !== prevNav) {
-    setPrevNav(currentNav);
-    if (initialTab === 'endpoints' && hasEndpoints) {
-      setActiveTab('endpoints');
-    } else if (initialTab) {
-      const newKey = availableSections.find(s => s.key === initialTab)?.key
-        ?? (hasEndpoints ? 'endpoints' : availableSections[0]?.key ?? '');
-      setActiveTab(newKey);
-    } else {
-      setActiveTab(hasEndpoints ? 'endpoints' : availableSections[0]?.key ?? '');
-    }
+  // Reset active tab when module, requested tab, or data availability changes
+  const defaultTab = resolveTab(initialTab, hasEndpoints);
+  const navKey = `${contextName}:${moduleName}:${initialTab ?? ''}:${defaultTab}`;
+  const [prevNav, setPrevNav] = useState(navKey);
+  if (navKey !== prevNav) {
+    setPrevNav(navKey);
+    setActiveTab(defaultTab);
   }
 
   if (!mod) return null;
