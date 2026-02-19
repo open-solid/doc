@@ -17,6 +17,14 @@ const METHOD_COLORS: Record<string, string> = {
   delete: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
 
+const METHOD_TEXT_COLORS: Record<string, string> = {
+  get: 'text-emerald-600 dark:text-emerald-400',
+  post: 'text-primary-600 dark:text-primary-400',
+  put: 'text-amber-600 dark:text-amber-400',
+  patch: 'text-amber-600 dark:text-amber-400',
+  delete: 'text-rose-600 dark:text-rose-400',
+};
+
 interface Attribute {
   name: string;
   type: string;
@@ -145,7 +153,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
               <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
             </div>
             <div className="flex items-center gap-2 mb-3">
-              <span className={`inline-block px-2 py-0.5 text-[11px] font-bold uppercase rounded ${METHOD_COLORS[endpoint.method] ?? 'bg-slate-100 text-slate-700'}`}>
+              <span className={`text-[11px] font-bold uppercase ${METHOD_TEXT_COLORS[endpoint.method] ?? 'text-slate-500'}`}>
                 {endpoint.method}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{endpoint.path}</span>
