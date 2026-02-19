@@ -55,7 +55,7 @@ export function ContentNav({ items }: ContentNavProps) {
             <button
               type="button"
               onClick={() => handleClick(item.id)}
-              className={`w-full text-left text-xs px-3 py-1.5 rounded-md truncate transition-colors ${
+              className={`w-full text-left text-xs px-3 py-1.5 rounded-md truncate transition-colors cursor-pointer ${
                 activeId === item.id
                   ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
