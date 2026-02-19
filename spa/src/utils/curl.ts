@@ -2,7 +2,8 @@ import type { Endpoint, OpenApiSpec } from '../openapi';
 import { generateExampleJson, resolveSchema } from './schema';
 
 export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiSpec): string {
-  const url = `${baseUrl.replace(/\/$/, '')}${endpoint.path}`;
+  const origin = baseUrl && baseUrl !== '/' ? baseUrl.replace(/\/$/, '') : 'https://localhost';
+  const url = `${origin}${endpoint.path}`;
   const parts: string[] = ['curl'];
 
   if (endpoint.method !== 'get') {
@@ -29,11 +30,19 @@ export function generateCurl(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
 
   parts.push(`"${finalUrl}"`);
 
-  // Request body
-  const jsonContent = endpoint.requestBody?.content['application/json'];
-  if (jsonContent?.schema) {
-    parts.push('-H "Content-Type: application/json"');
-    const resolved = resolveSchema(jsonContent.schema, spec);
+  // Request body — check all common content types
+  const content = endpoint.requestBody?.content;
+  const bodyEntry = content?.['application/json']
+    ?? content?.['application/ld+json']
+    ?? content?.['application/merge-patch+json'];
+  const contentType = content?.['application/json'] ? 'application/json'
+    : content?.['application/ld+json'] ? 'application/ld+json'
+    : content?.['application/merge-patch+json'] ? 'application/merge-patch+json'
+    : null;
+
+  if (bodyEntry?.schema && contentType) {
+    parts.push(`-H "Content-Type: ${contentType}"`);
+    const resolved = resolveSchema(bodyEntry.schema, spec);
     const body = generateExampleJson(resolved, spec);
     parts.push(`-d '${JSON.stringify(body, null, 2)}'`);
   }
