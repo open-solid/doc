@@ -25,6 +25,18 @@ const METHOD_TEXT_COLORS: Record<string, string> = {
   delete: 'text-rose-600 dark:text-rose-400',
 };
 
+interface Constraints {
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  exclusiveMinimum?: number;
+  exclusiveMaximum?: number;
+  pattern?: string;
+  default?: unknown;
+  readOnly?: boolean;
+}
+
 interface Attribute {
   name: string;
   type: string;
@@ -32,6 +44,7 @@ interface Attribute {
   optional?: boolean;
   description?: string;
   children?: Attribute[];
+  constraints?: Constraints;
 }
 
 const KNOWN_FORMATS = new Set([
@@ -83,6 +96,95 @@ function isNullableType(schema: SchemaObject | undefined): boolean {
   if (Array.isArray(schema.type)) return (schema.type as string[]).includes('null');
   if (schema.nullable) return true;
   return false;
+}
+
+function normalizeExclusive(value: number | boolean | undefined, fallback: number | undefined): number | undefined {
+  if (typeof value === 'number') return value;
+  if (value === true && fallback !== undefined) return fallback;
+  return undefined;
+}
+
+function extractConstraints(schema: SchemaObject, spec: OpenApiSpec): Constraints | undefined {
+  const resolved = schema.$ref ? resolveSchema(schema, spec) : schema;
+  const c: Constraints = {};
+  let hasAny = false;
+
+  if (resolved.minLength !== undefined) { c.minLength = resolved.minLength; hasAny = true; }
+  if (resolved.maxLength !== undefined) { c.maxLength = resolved.maxLength; hasAny = true; }
+  if (resolved.minimum !== undefined) { c.minimum = resolved.minimum; hasAny = true; }
+  if (resolved.maximum !== undefined) { c.maximum = resolved.maximum; hasAny = true; }
+
+  const exMin = normalizeExclusive(resolved.exclusiveMinimum, resolved.minimum);
+  if (exMin !== undefined) { c.exclusiveMinimum = exMin; hasAny = true; }
+
+  const exMax = normalizeExclusive(resolved.exclusiveMaximum, resolved.maximum);
+  if (exMax !== undefined) { c.exclusiveMaximum = exMax; hasAny = true; }
+
+  if (resolved.pattern !== undefined) { c.pattern = resolved.pattern; hasAny = true; }
+  if (resolved.default !== undefined) { c.default = resolved.default; hasAny = true; }
+  if (resolved.readOnly === true) { c.readOnly = true; hasAny = true; }
+
+  return hasAny ? c : undefined;
+}
+
+function formatNumericRange(c: Constraints): string | undefined {
+  const min = c.exclusiveMinimum ?? c.minimum;
+  const max = c.exclusiveMaximum ?? c.maximum;
+  const minExclusive = c.exclusiveMinimum !== undefined;
+  const maxExclusive = c.exclusiveMaximum !== undefined;
+
+  if (min !== undefined && max !== undefined && !minExclusive && !maxExclusive) return `${min}..${max}`;
+  if (min !== undefined && max !== undefined) {
+    const left = minExclusive ? `${min}<` : `${min}`;
+    const right = maxExclusive ? `<${max}` : `${max}`;
+    return `${left}..${right}`;
+  }
+  if (min !== undefined) return minExclusive ? `> ${min}` : `>= ${min}`;
+  if (max !== undefined) return maxExclusive ? `< ${max}` : `<= ${max}`;
+  return undefined;
+}
+
+function formatLengthRange(c: Constraints): string | undefined {
+  if (c.minLength !== undefined && c.maxLength !== undefined) return `${c.minLength}..${c.maxLength}`;
+  if (c.minLength !== undefined) return `>= ${c.minLength}`;
+  if (c.maxLength !== undefined) return `<= ${c.maxLength}`;
+  return undefined;
+}
+
+function ConstraintBadges({ constraints }: { constraints: Constraints }) {
+  const badges: { text: string; title?: string; isDefault?: boolean }[] = [];
+
+  const numRange = formatNumericRange(constraints);
+  if (numRange) badges.push({ text: numRange });
+
+  const lenRange = formatLengthRange(constraints);
+  if (lenRange) badges.push({ text: lenRange });
+
+  if (constraints.pattern) badges.push({ text: 'pattern', title: constraints.pattern });
+
+  if (constraints.default !== undefined) {
+    badges.push({ text: `= ${String(constraints.default)}`, isDefault: true });
+  }
+
+  if (badges.length === 0) return null;
+
+  return (
+    <>
+      {badges.map(b => (
+        <span
+          key={b.text}
+          title={b.title}
+          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+            b.isDefault
+              ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400'
+              : 'bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400'
+          }`}
+        >
+          {b.text}
+        </span>
+      ))}
+    </>
+  );
 }
 
 function resolveResponseSchema(response: { content?: Record<string, { schema?: SchemaObject }> }, spec: OpenApiSpec): SchemaObject | null {
@@ -138,6 +240,7 @@ function getNestedChildren(schema: SchemaObject, spec: OpenApiSpec, depth = 0): 
       optional: !required.has(name) || isNullableType(propSchema),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec, depth + 1),
+      constraints: extractConstraints(propSchema, spec),
     });
   }
   return children.length > 0 ? children : undefined;
@@ -154,6 +257,7 @@ function extractAttributes(schema: SchemaObject, spec: OpenApiSpec): Attribute[]
       format: getSchemaFormat(propSchema, spec),
       description: resolvedProp.description,
       children: getNestedChildren(propSchema, spec),
+      constraints: extractConstraints(propSchema, spec),
     });
   }
   return attrs;
@@ -183,10 +287,14 @@ function AttributeRow({ attr, isLast, depth = 0 }: { attr: Attribute; isLast: bo
         {attr.optional && (
           <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
         )}
+        {attr.constraints?.readOnly && (
+          <span className="text-xs text-amber-500 dark:text-amber-400">read-only</span>
+        )}
         <span className="text-sm text-slate-500 dark:text-slate-400">{attr.type}</span>
         {attr.format && (
           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400">{attr.format}</span>
         )}
+        {attr.constraints && <ConstraintBadges constraints={attr.constraints} />}
       </div>
       {attr.description && (
         <p className={`mt-1 text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${hasChildren ? 'ml-[22px]' : ''}`}>{attr.description}</p>
@@ -239,7 +347,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const queryParams = useMemo(() =>
     endpoint.parameters
       .filter(p => p.in === 'query')
-      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), format: getSchemaFormat(p.schema, spec), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined })),
+      .map(p => ({ name: p.name, type: getSchemaType(p.schema, spec), format: getSchemaFormat(p.schema, spec), optional: !p.required, description: p.description, children: p.schema ? getNestedChildren(p.schema, spec) : undefined, constraints: p.schema ? extractConstraints(p.schema, spec) : undefined })),
     [endpoint, spec],
   );
 
@@ -263,6 +371,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           optional: !requiredFields.has(name) || isNullableType(propSchema),
           description: resolvedProp.description,
           children: getNestedChildren(propSchema, spec),
+          constraints: extractConstraints(propSchema, spec),
         });
       }
     }

@@ -61,6 +61,15 @@ export interface SchemaObject {
   anyOf?: SchemaObject[];
   nullable?: boolean;
   additionalProperties?: boolean | SchemaObject;
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  exclusiveMinimum?: number | boolean;
+  exclusiveMaximum?: number | boolean;
+  pattern?: string;
+  default?: unknown;
+  readOnly?: boolean;
 }
 
 export interface Endpoint {
