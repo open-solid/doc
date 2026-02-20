@@ -35,7 +35,7 @@ export function Header() {
 
   return (
     <header className={`sticky top-0 z-10 transition-all duration-200 ${view.type === 'overview' && !scrolled ? 'border-b border-transparent bg-transparent' : 'border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg'}`}>
-      <div className="flex items-center justify-between px-8 py-3">
+      <div className="flex items-center justify-between px-8 py-2">
         <button
           type="button"
           className="flex items-center gap-2 w-100 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer"
