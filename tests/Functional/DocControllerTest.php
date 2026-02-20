@@ -77,7 +77,7 @@ final class DocControllerTest extends TestCase
 
         // Check nested items
         $items = $nav[0]['items'];
-        self::assertCount(2, $items);
+        self::assertCount(3, $items);
         self::assertSame('Introduction', $items[0]['title']);
         self::assertSame('tests/Functional/docs/introduction.md', $items[0]['path']);
 
@@ -102,7 +102,7 @@ final class DocControllerTest extends TestCase
 
     public function testMarkdownContentReturns404ForUnlistedPath(): void
     {
-        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/quickstart.md']);
+        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/not-listed.md']);
 
         $response = $this->kernel->handle($request);
 
