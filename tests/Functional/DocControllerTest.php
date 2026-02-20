@@ -37,7 +37,7 @@ final class DocControllerTest extends TestCase
 
     public function testViewerPageReturnsHtmlResponse(): void
     {
-        $request = Request::create('/doc');
+        $request = Request::create('/');
 
         $response = $this->kernel->handle($request);
 
@@ -59,7 +59,7 @@ final class DocControllerTest extends TestCase
 
     public function testNavigationJsonReturnsResolvedTree(): void
     {
-        $request = Request::create('/doc/navigation.json');
+        $request = Request::create('/navigation.json');
 
         $response = $this->kernel->handle($request);
 
@@ -91,7 +91,7 @@ final class DocControllerTest extends TestCase
 
     public function testNavigationJsonByTypeReturnsFilteredTree(): void
     {
-        $request = Request::create('/doc/navigation/module.json');
+        $request = Request::create('/navigation/module.json');
 
         $response = $this->kernel->handle($request);
 
@@ -108,7 +108,7 @@ final class DocControllerTest extends TestCase
 
     public function testNavigationJsonByTypeReturns404ForUnknownType(): void
     {
-        $request = Request::create('/doc/navigation/unknown.json');
+        $request = Request::create('/navigation/unknown.json');
 
         $response = $this->kernel->handle($request);
 
@@ -117,7 +117,7 @@ final class DocControllerTest extends TestCase
 
     public function testMarkdownContentReturnsFileContent(): void
     {
-        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/introduction.md']);
+        $request = Request::create('/content', 'GET', ['path' => 'tests/Functional/docs/introduction.md']);
 
         $response = $this->kernel->handle($request);
 
@@ -128,7 +128,7 @@ final class DocControllerTest extends TestCase
 
     public function testMarkdownContentReturns404ForUnlistedPath(): void
     {
-        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/not-listed.md']);
+        $request = Request::create('/content', 'GET', ['path' => 'tests/Functional/docs/not-listed.md']);
 
         $response = $this->kernel->handle($request);
 
@@ -137,7 +137,7 @@ final class DocControllerTest extends TestCase
 
     public function testMarkdownContentReturns404ForPathTraversal(): void
     {
-        $request = Request::create('/doc/content', 'GET', ['path' => '../../etc/passwd']);
+        $request = Request::create('/content', 'GET', ['path' => '../../etc/passwd']);
 
         $response = $this->kernel->handle($request);
 

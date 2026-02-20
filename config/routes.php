@@ -5,19 +5,19 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return static function (RoutingConfigurator $routes): void {
     $routes
-        ->add('open_solid_doc_controller', '/doc')
+        ->add('open_solid_doc_controller', '/')
             ->controller(DocController::class)
             ->methods(['GET'])
 
-        ->add('open_solid_doc_docs_navigation_controller', '/doc/navigation.json')
+        ->add('open_solid_doc_docs_navigation_controller', '/navigation.json')
             ->controller(DocController::class.'::navigationJson')
             ->methods(['GET'])
 
-        ->add('open_solid_doc_docs_navigation_type_controller', '/doc/navigation/{type}.json')
+        ->add('open_solid_doc_docs_navigation_type_controller', '/navigation/{type}.json')
             ->controller(DocController::class.'::navigationJsonByType')
             ->methods(['GET'])
 
-        ->add('open_solid_doc_docs_content_controller', '/doc/content')
+        ->add('open_solid_doc_docs_content_controller', '/content')
             ->controller(DocController::class.'::markdownContent')
             ->methods(['GET'])
 
