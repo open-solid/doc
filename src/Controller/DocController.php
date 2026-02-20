@@ -36,7 +36,7 @@ final readonly class DocController
         return new Response(content: $content);
     }
 
-    public function archJson(): Response
+    public function archJson(): JsonResponse
     {
         if (!file_exists($this->archJsonPath)) {
             return new JsonResponse(
@@ -45,34 +45,29 @@ final readonly class DocController
             );
         }
 
-        return new Response(
-            content: file_get_contents($this->archJsonPath),
+        return new JsonResponse(
+            data: file_get_contents($this->archJsonPath),
             headers: [
                 'Content-Type' => 'application/json',
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',
                 'Expires' => '0',
             ],
+            json: true,
         );
     }
 
-    public function openapiJson(): Response
+    public function openapiJson(): JsonResponse
     {
-        if (!file_exists($this->openapiJsonPath)) {
-            return new JsonResponse(
-                data: ['error' => 'OpenAPI documentation not found. Please generate it first.'],
-                status: Response::HTTP_NOT_FOUND,
-            );
-        }
-
-        return new Response(
-            content: file_get_contents($this->openapiJsonPath),
+        return new JsonResponse(
+            data: file_exists($this->openapiJsonPath) ? file_get_contents($this->openapiJsonPath) : '{}',
             headers: [
                 'Content-Type' => 'application/json',
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',
                 'Expires' => '0',
             ],
+            json: true,
         );
     }
 

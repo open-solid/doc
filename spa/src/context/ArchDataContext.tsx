@@ -14,12 +14,20 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch(config.archJsonUrl);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        const message = body?.error ?? `Failed to load project data (${res.status}).`;
+        setData(null);
+        dataRef.current = null;
+        setError(message);
+        return;
+      }
       const json: ArchData = await res.json();
       setData(json);
       dataRef.current = json;
       setError(null);
     } catch {
-      setError('Failed to load architecture data.');
+      setError('Failed to load project data.');
     } finally {
       setLoading(false);
     }
