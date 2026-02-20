@@ -1,46 +1,131 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useArchData } from '../hooks/useArchData';
 import { useNavigation } from '../hooks/useNavigation';
 import { useDocs } from '../hooks/useDocs';
 import { SVG_PATHS } from '../constants';
-import type { DocsNavItem } from '../types';
+import type { DocsNavItem, NavigationView } from '../types';
+
+function isSelfOrChildActive(item: DocsNavItem, currentNav: string): boolean {
+  const navKey = item.path !== null ? `doc:${item.path}:${item.anchor ?? ''}` : null;
+  if (navKey !== null && currentNav === navKey) return true;
+  return item.items.some(child => isSelfOrChildActive(child, currentNav));
+}
+
+function findActiveIndex(items: DocsNavItem[], currentNav: string): number | null {
+  for (let i = 0; i < items.length; i++) {
+    if (isSelfOrChildActive(items[i]!, currentNav)) return i;
+  }
+  return null;
+}
+
+function AnimatedCollapse({ expanded, children }: { expanded: boolean; children: React.ReactNode }) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | 'auto'>(expanded ? 'auto' : 0);
+  const isInitial = useRef(true);
+
+  useEffect(() => {
+    if (isInitial.current) {
+      isInitial.current = false;
+      return;
+    }
+    const el = contentRef.current;
+    if (!el) return;
+
+    if (expanded) {
+      setHeight(el.scrollHeight);
+      const onEnd = () => { setHeight('auto'); el.removeEventListener('transitionend', onEnd); };
+      el.addEventListener('transitionend', onEnd);
+    } else {
+      setHeight(el.scrollHeight);
+      requestAnimationFrame(() => { requestAnimationFrame(() => { setHeight(0); }); });
+    }
+  }, [expanded]);
+
+  return (
+    <div
+      ref={contentRef}
+      className="overflow-hidden transition-[height] duration-200 ease-in-out"
+      style={{ height: height === 'auto' ? 'auto' : `${height}px` }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function DocsNavTree({ items, depth, currentNav, navigate }: {
   items: DocsNavItem[];
   depth: number;
   currentNav: string;
-  navigate: (view: { type: 'doc'; path: string; anchor?: string }) => void;
+  navigate: (view: NavigationView) => void;
 }) {
+  const isRoot = depth === 0;
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(() => findActiveIndex(items, currentNav));
+
+  useEffect(() => {
+    if (isRoot) return;
+    const active = findActiveIndex(items, currentNav);
+    if (active !== null) {
+      setExpandedIndex(active);
+    } else if (!currentNav.startsWith('doc:')) {
+      setExpandedIndex(null);
+    }
+  }, [items, currentNav, isRoot]);
+
+  const toggle = useCallback((index: number) => {
+    setExpandedIndex(prev => prev === index ? null : index);
+  }, []);
+
   return (
     <ul className={depth > 0 ? 'space-y-0.5' : 'space-y-1'}>
       {items.map((item, i) => {
+        const hasChildren = item.items.length > 0;
         const hasPath = item.path !== null;
         const navKey = hasPath ? `doc:${item.path}:${item.anchor ?? ''}` : null;
         const isActive = navKey !== null && currentNav === navKey;
+        const isExpanded = hasChildren && (isRoot || expandedIndex === i);
         const paddingClass = depth === 0 ? 'pl-3' : depth === 1 ? 'pl-7' : 'pl-11';
+
+        if (!hasPath && !item.anchor) {
+          return (
+            <li key={`${item.title}-${i}`}>
+              <h3 className={`${paddingClass} pr-3 mb-1 mt-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400`}>
+                {item.title}
+              </h3>
+              {hasChildren && (
+                isRoot ? (
+                  <DocsNavTree items={item.items} depth={depth + 1} currentNav={currentNav} navigate={navigate} />
+                ) : (
+                  <AnimatedCollapse expanded={isExpanded}>
+                    <DocsNavTree items={item.items} depth={depth + 1} currentNav={currentNav} navigate={navigate} />
+                  </AnimatedCollapse>
+                )
+              )}
+            </li>
+          );
+        }
 
         return (
           <li key={`${item.title}-${i}`}>
-            {hasPath ? (
-              <a
-                href="#"
-                aria-current={isActive ? 'page' : undefined}
-                className={`nav-link flex items-center gap-2 ${paddingClass} pr-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-lg border-transparent`}
-                onClick={e => { e.preventDefault(); navigate({ type: 'doc', path: item.path!, anchor: item.anchor ?? undefined }); }}
-              >
-                {depth === 0 && (
-                  <svg className="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                  </svg>
-                )}
-                <span className={depth > 0 ? 'text-xs' : ''}>{item.title}</span>
-              </a>
-            ) : (
-              <h3 className={`${paddingClass} mb-1 mt-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400`}>
-                {item.title}
-              </h3>
-            )}
-            {item.items.length > 0 && (
-              <DocsNavTree items={item.items} depth={depth + 1} currentNav={currentNav} navigate={navigate} />
+            <a
+              href="#"
+              aria-current={isActive ? 'page' : undefined}
+              className={`nav-link flex items-center gap-2 ${paddingClass} pr-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-lg border-transparent`}
+              onClick={e => {
+                e.preventDefault();
+                if (hasChildren && !isRoot) toggle(i);
+                navigate({ type: 'doc', path: item.path!, anchor: item.anchor ?? undefined });
+              }}
+            >
+              <span>{item.title}</span>
+            </a>
+            {hasChildren && (
+              isRoot ? (
+                <DocsNavTree items={item.items} depth={depth + 1} currentNav={currentNav} navigate={navigate} />
+              ) : (
+                <AnimatedCollapse expanded={isExpanded}>
+                  <DocsNavTree items={item.items} depth={depth + 1} currentNav={currentNav} navigate={navigate} />
+                </AnimatedCollapse>
+              )
             )}
           </li>
         );
