@@ -44,7 +44,7 @@ function AnimatedCollapse({ expanded, children }: { expanded: boolean; children:
   return (
     <div
       ref={contentRef}
-      className="overflow-hidden transition-[height] duration-200 ease-in-out"
+      className="overflow-hidden transition-[height] ease-in-out duration-500"
       style={{ height: height === 'auto' ? 'auto' : `${height}px` }}
     >
       {children}
