@@ -442,7 +442,7 @@ export function ContextMap() {
   return (
     <section className="mt-14">
       <h2 className="text-xl font-bold mb-6">Context Map</h2>
-      <div className="bg-white dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 p-5">
+      <div className="bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 p-5">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
             <div className="flex items-center gap-2">

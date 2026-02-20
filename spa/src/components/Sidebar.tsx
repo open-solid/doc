@@ -146,8 +146,8 @@ export function Sidebar() {
       : `module:${view.context}:${view.module}`;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 w-72 border-r border-slate-200 dark:border-slate-800 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 overflow-y-auto">
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-white via-white to-white/95 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900/95 px-6 py-5 backdrop-blur-sm">
+    <aside className="fixed inset-y-0 left-0 z-10 w-72 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 overflow-y-auto">
+      <div className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 px-6 py-5 backdrop-blur-sm">
         <a
           href="#"
           className="flex items-center gap-3"
@@ -166,7 +166,7 @@ export function Sidebar() {
         </a>
       </div>
       <nav className="px-4 py-4">
-        <div className="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="mb-4">
           <a
             href="#"
             aria-current={currentNav === 'overview' ? 'page' : undefined}
@@ -180,7 +180,7 @@ export function Sidebar() {
           </a>
         </div>
         {!loadingNav && docsNav.length > 0 && (
-          <div className="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="mb-4">
             <DocsNavTree items={docsNav} depth={0} currentNav={currentNav} navigate={navigate} />
           </div>
         )}

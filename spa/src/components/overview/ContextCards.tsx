@@ -20,7 +20,7 @@ export function ContextCards() {
       <h2 className="text-xl font-bold mb-6">Bounded Contexts</h2>
       <div className="grid md:grid-cols-2 gap-6 stagger-in">
         {data.contexts.map(ctx => (
-          <article key={ctx.name} className="card bg-white dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 p-6">
+          <article key={ctx.name} className="card bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 p-6">
             <header className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-900/40 dark:to-primary-800/20 text-primary-600 dark:text-primary-400 ring-1 ring-primary-200/50 dark:ring-primary-700/30">

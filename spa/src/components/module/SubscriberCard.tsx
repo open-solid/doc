@@ -216,7 +216,7 @@ export function SubscriberCard({ item, color, moduleName, index }: SubscriberCar
   }, [isDark, item, moduleName, eventLoc, handleCanvasClick, handleCanvasMove]);
 
   return (
-    <article className="item-card rounded-lg p-5 bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50" style={{ '--card-accent': 'rgb(244 63 94)' } as React.CSSProperties}>
+    <article className="item-card rounded-lg p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50" style={{ '--card-accent': 'rgb(244 63 94)' } as React.CSSProperties}>
       <div className="flex items-center gap-2 mb-1">
         <h3 className="text-base font-semibold cursor-help border-b border-dashed border-slate-400 dark:border-slate-600" title={item.class}>
           {item.name}

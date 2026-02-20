@@ -46,7 +46,7 @@ export function ItemCard({ item, type, color }: ItemCardProps) {
 
   return (
     <article
-      className="item-card rounded-lg p-5 bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50"
+      className="item-card rounded-lg p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50"
       style={{ '--card-accent': ACCENT_COLORS[color] ?? ACCENT_COLORS.primary } as React.CSSProperties}
     >
       <div className="flex items-center gap-2 mb-1">

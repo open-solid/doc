@@ -16,7 +16,8 @@
   --color-primary-950: #1e1b4b;
 }
 
-body { font-family: 'ui-sans-serif', sans-serif; }
+body { font-family: 'ui-sans-serif', sans-serif; background-color: rgb(248 250 252); }
+.dark body { background-color: rgb(15 23 42); }
 code, .font-mono { font-family: 'Fira Code', monospace; }
 h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
 
@@ -81,7 +82,7 @@ details[open] .chevron { transform: rotate(90deg); }
 
 /* Theme toggle */
 .theme-btn[aria-pressed="true"] {
-  background-color: white;
+  background-color: rgb(248 250 252);
   color: rgb(99 102 241);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
 }

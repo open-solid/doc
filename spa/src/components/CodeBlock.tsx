@@ -44,7 +44,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     <Highlight theme={theme} code={code} language={language}>
       {({ style, tokens, getLineProps, getTokenProps }) => (
         <div
-          className="relative group rounded-lg bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50"
+          className="relative group rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50"
           style={{ ...style, background: undefined }}
         >
           <button

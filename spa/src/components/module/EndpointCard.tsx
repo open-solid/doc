@@ -399,7 +399,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const hasReturns = responses.some(r => r.attributes.length > 0);
 
   return (
-    <article className="item-card rounded-lg bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+    <article className="item-card rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Left panel */}
         <div className="p-6 lg:border-r border-slate-200 dark:border-slate-700/50">

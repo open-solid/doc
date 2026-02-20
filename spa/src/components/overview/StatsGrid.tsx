@@ -42,7 +42,7 @@ export function StatsGrid() {
       {stats.map(s => (
         <div
           key={s.label}
-          className={`bg-white dark:bg-slate-800/60 rounded-xl p-5 border border-slate-200 dark:border-slate-700/60 border-t-[3px] ${BORDER_COLORS[s.color] ?? 'border-t-primary-500'}`}
+          className={`bg-slate-50 dark:bg-slate-800/60 rounded-xl p-5 border border-slate-200 dark:border-slate-700/60 border-t-[3px] ${BORDER_COLORS[s.color] ?? 'border-t-primary-500'}`}
         >
           <div className="flex items-center justify-between mb-3">
             <svg className={`h-5 w-5 ${COLOR_CLASSES[s.color]?.icon ?? ''} opacity-70`} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

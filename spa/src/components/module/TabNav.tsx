@@ -18,7 +18,7 @@ export function TabNav({ sections, module, activeKey, onTabChange, endpointsCoun
           type="button"
           className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
             activeKey === 'endpoints'
-              ? 'bg-white dark:bg-slate-700 text-primary-700 dark:text-primary-300 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600/30'
+              ? 'bg-slate-50 dark:bg-slate-700 text-primary-700 dark:text-primary-300 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600/30'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700/50'
           }`}
           onClick={() => onTabChange('endpoints')}
@@ -41,7 +41,7 @@ export function TabNav({ sections, module, activeKey, onTabChange, endpointsCoun
             type="button"
             className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
               isActive
-                ? 'bg-white dark:bg-slate-700 text-primary-700 dark:text-primary-300 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600/30'
+                ? 'bg-slate-50 dark:bg-slate-700 text-primary-700 dark:text-primary-300 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-600/30'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700/50'
             }`}
             onClick={() => onTabChange(s.key)}
