@@ -13,6 +13,10 @@ return static function (RoutingConfigurator $routes): void {
             ->controller(DocController::class.'::navigationJson')
             ->methods(['GET'])
 
+        ->add('open_solid_doc_docs_navigation_type_controller', '/doc/navigation/{type}.json')
+            ->controller(DocController::class.'::navigationJsonByType')
+            ->methods(['GET'])
+
         ->add('open_solid_doc_docs_content_controller', '/doc/content')
             ->controller(DocController::class.'::markdownContent')
             ->methods(['GET'])

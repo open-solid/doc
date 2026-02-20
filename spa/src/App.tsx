@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { NavigationProvider } from './context/NavigationContext';
 import { ArchDataProvider } from './context/ArchDataContext';
+import { ModuleDocsProvider } from './context/ModuleDocsContext';
 import { OpenApiProvider } from './context/OpenApiContext';
 import { DocsProvider } from './context/DocsContext';
 import { useNavigation } from './hooks/useNavigation';
@@ -84,23 +85,25 @@ export function App() {
   return (
     <ThemeProvider>
       <ArchDataProvider>
-        <DocsProvider>
-          <OpenApiProvider>
-            <NavigationProvider>
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <main className="flex-1 ml-72 bg-grid">
-                  <Header />
-                  <div className="max-w-7xl mx-auto px-8 py-8">
-                    <MainContent />
-                  </div>
-                </main>
-              </div>
-              <Toast />
-              <ScrollToTop />
-            </NavigationProvider>
-          </OpenApiProvider>
-        </DocsProvider>
+        <ModuleDocsProvider>
+          <DocsProvider>
+            <OpenApiProvider>
+              <NavigationProvider>
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <main className="flex-1 ml-72 bg-grid">
+                    <Header />
+                    <div className="max-w-7xl mx-auto px-8 py-8">
+                      <MainContent />
+                    </div>
+                  </main>
+                </div>
+                <Toast />
+                <ScrollToTop />
+              </NavigationProvider>
+            </OpenApiProvider>
+          </DocsProvider>
+        </ModuleDocsProvider>
       </ArchDataProvider>
     </ThemeProvider>
   );

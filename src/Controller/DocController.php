@@ -90,11 +90,27 @@ final readonly class DocController
         ]);
     }
 
+    public function navigationJsonByType(string $type): JsonResponse
+    {
+        $items = $this->filterNavigation($type);
+
+        if (!$items) {
+            return new JsonResponse(
+                data: ['error' => sprintf('No navigation found for type "%s".', $type)],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        return new JsonResponse([
+            'navigation' => $this->resolveNavigation($items),
+        ]);
+    }
+
     public function markdownContent(Request $request): Response
     {
         $path = $request->query->get('path', '');
 
-        $allowedPaths = $this->collectPaths($this->filterNavigation('doc'));
+        $allowedPaths = $this->collectPaths($this->navigation);
 
         if (!in_array($path, $allowedPaths, true)) {
             return new JsonResponse(

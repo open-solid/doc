@@ -47,8 +47,36 @@ return static function (ContainerConfigurator $container): void {
                 'type' => 'module',
                 'items' => [
                     [
+                        'title' => 'Ubiquitous language',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/domain/ubiquitous-language.md',
+                    ],
+                    [
+                        'title' => 'Business rules',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/domain/business-rules.md',
+                    ],
+                    [
+                        'title' => 'Models',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/domain/models.md',
+                    ],
+                    [
                         'title' => 'Use-cases',
                         'path' => 'tests/Functional/docs/specs/catalog/property/application/use-cases.md',
+                    ],
+                    [
+                        'title' => 'Integration',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/infrastructure/integration.md',
+                    ],
+                    [
+                        'title' => 'API',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/presentation/api.md',
+                    ],
+                    [
+                        'title' => 'Console',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/presentation/console.md',
+                    ],
+                    [
+                        'title' => 'Webhook',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/presentation/webhook.md',
                     ],
                 ],
             ],

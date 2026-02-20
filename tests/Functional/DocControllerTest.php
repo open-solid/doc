@@ -89,6 +89,32 @@ final class DocControllerTest extends TestCase
         self::assertSame('getting-started', $children[0]['anchor']);
     }
 
+    public function testNavigationJsonByTypeReturnsFilteredTree(): void
+    {
+        $request = Request::create('/doc/navigation/module.json');
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame('application/json', $response->headers->get('Content-Type'));
+
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertArrayHasKey('navigation', $data);
+
+        $nav = $data['navigation'];
+        self::assertCount(1, $nav);
+        self::assertSame('Property', $nav[0]['title']);
+    }
+
+    public function testNavigationJsonByTypeReturns404ForUnknownType(): void
+    {
+        $request = Request::create('/doc/navigation/unknown.json');
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     public function testMarkdownContentReturnsFileContent(): void
     {
         $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/introduction.md']);

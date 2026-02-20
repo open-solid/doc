@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useArchData } from '../hooks/useArchData';
 import { useNavigation } from '../hooks/useNavigation';
 import { useDocs } from '../hooks/useDocs';
+import { useModuleDocs } from '../hooks/useModuleDocs';
 import { SVG_PATHS } from '../constants';
-import type { DocsNavItem, NavigationView } from '../types';
+import type { DocsNavItem, Module, NavigationView } from '../types';
 
 function isSelfOrChildActive(item: DocsNavItem, currentNav: string): boolean {
   const navKey = item.path !== null ? `doc:${item.path}:${item.anchor ?? ''}` : null;
@@ -134,10 +135,77 @@ function DocsNavTree({ items, depth, currentNav, navigate }: {
   );
 }
 
+function isDocActiveForModule(docs: DocsNavItem[], currentNav: string): boolean {
+  return docs.some(item => isSelfOrChildActive(item, currentNav));
+}
+
+function ModuleNavList({ context, modules, currentNav, navigate, getModuleDocs }: {
+  context: string;
+  modules: Module[];
+  currentNav: string;
+  navigate: (view: NavigationView) => void;
+  getModuleDocs: (moduleName: string) => DocsNavItem[];
+}) {
+  const [expandedModule, setExpandedModule] = useState<string | null>(() => {
+    for (const mod of modules) {
+      const docs = getModuleDocs(mod.name);
+      if (docs.length > 0 && isDocActiveForModule(docs, currentNav)) return mod.name;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    for (const mod of modules) {
+      const docs = getModuleDocs(mod.name);
+      if (docs.length > 0 && isDocActiveForModule(docs, currentNav)) {
+        setExpandedModule(mod.name);
+        return;
+      }
+    }
+  }, [modules, currentNav, getModuleDocs]);
+
+  return (
+    <ul className="space-y-1">
+      {modules.map(mod => {
+        const navKey = `module:${context}:${mod.name}`;
+        const docs = getModuleDocs(mod.name);
+        const hasDocs = docs.length > 0;
+        const isExpanded = hasDocs && expandedModule === mod.name;
+
+        return (
+          <li key={mod.name}>
+            <a
+              href="#"
+              aria-current={currentNav === navKey ? 'page' : undefined}
+              className="nav-link flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-lg border-transparent"
+              onClick={e => {
+                e.preventDefault();
+                if (hasDocs) setExpandedModule(prev => prev === mod.name ? null : mod.name);
+                navigate({ type: 'module', context, module: mod.name });
+              }}
+            >
+              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d={SVG_PATHS.module} />
+              </svg>
+              {mod.name}
+            </a>
+            {hasDocs && (
+              <AnimatedCollapse expanded={isExpanded}>
+                <DocsNavTree items={docs} depth={1} currentNav={currentNav} navigate={navigate} />
+              </AnimatedCollapse>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function Sidebar() {
   const { data } = useArchData();
   const { view, navigate } = useNavigation();
   const { navigation: docsNav, loadingNav } = useDocs();
+  const { getModuleDocs } = useModuleDocs();
 
   const currentNav = view.type === 'overview'
     ? 'overview'
@@ -189,26 +257,7 @@ export function Sidebar() {
             <h3 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               {ctx.name}
             </h3>
-            <ul className="space-y-1">
-              {ctx.modules.map(mod => {
-                const navKey = `module:${ctx.name}:${mod.name}`;
-                return (
-                  <li key={mod.name}>
-                    <a
-                      href="#"
-                      aria-current={currentNav === navKey ? 'page' : undefined}
-                      className="nav-link flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 rounded-lg border-transparent"
-                      onClick={e => { e.preventDefault(); navigate({ type: 'module', context: ctx.name, module: mod.name }); }}
-                    >
-                      <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d={SVG_PATHS.module} />
-                      </svg>
-                      {mod.name}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <ModuleNavList context={ctx.name} modules={ctx.modules} currentNav={currentNav} navigate={navigate} getModuleDocs={getModuleDocs} />
           </div>
         ))}
       </nav>
