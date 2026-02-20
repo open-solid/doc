@@ -86,7 +86,7 @@ final readonly class DocController
     public function navigationJson(): JsonResponse
     {
         return new JsonResponse([
-            'navigation' => $this->resolveNavigation($this->navigation),
+            'navigation' => $this->resolveNavigation($this->filterNavigation('doc')),
         ]);
     }
 
@@ -94,7 +94,7 @@ final readonly class DocController
     {
         $path = $request->query->get('path', '');
 
-        $allowedPaths = $this->collectPaths($this->navigation);
+        $allowedPaths = $this->collectPaths($this->filterNavigation('doc'));
 
         if (!in_array($path, $allowedPaths, true)) {
             return new JsonResponse(
@@ -116,6 +116,11 @@ final readonly class DocController
             content: file_get_contents($fullPath),
             headers: ['Content-Type' => 'text/markdown'],
         );
+    }
+
+    private function filterNavigation(string $type): array
+    {
+        return array_values(array_filter($this->navigation, static fn (array $item) => ($item['type'] ?? null) === $type));
     }
 
     private function resolveNavigation(array $items, ?string $parentPath = null): array

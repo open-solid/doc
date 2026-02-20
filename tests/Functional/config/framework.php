@@ -20,6 +20,7 @@ return static function (ContainerConfigurator $container): void {
         'navigation' => [
             [
                 'title' => 'Guides',
+                'type' => 'doc',
                 'items' => [
                     [
                         'title' => 'Introduction',
@@ -38,6 +39,16 @@ return static function (ContainerConfigurator $container): void {
                     [
                         'title' => 'SDKs',
                         'path' => 'tests/Functional/docs/sdk/README.md',
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Property',
+                'type' => 'module',
+                'items' => [
+                    [
+                        'title' => 'Use-cases',
+                        'path' => 'tests/Functional/docs/specs/catalog/property/application/use-cases.md',
                     ],
                 ],
             ],
