@@ -2,6 +2,7 @@
 
 namespace OpenSolid\Doc\Controller;
 
+use ApiPlatform\OpenApi\Command\OpenApiCommand;
 use OpenSolid\Doc\Command\ExportCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -16,6 +17,7 @@ final readonly class DocController
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private ExportCommand $exportCommand,
+        private ?OpenApiCommand $openApiCommand,
         private string $archJsonPath,
         private string $openapiJsonPath,
         private string $company,
@@ -30,6 +32,7 @@ final readonly class DocController
         $archJsonUrl = $this->urlGenerator->generate('open_solid_doc_json_controller');
         $archJsonUpdateUrl = $this->urlGenerator->generate('open_solid_doc_json_update_controller');
         $openapiJsonUrl = $this->urlGenerator->generate('open_solid_doc_openapi_json_controller');
+        $openapiJsonUpdateUrl = $this->urlGenerator->generate('open_solid_doc_openapi_json_update_controller');
         $docsNavigationUrl = $this->urlGenerator->generate('open_solid_doc_docs_navigation_controller');
 
         ob_start();
@@ -79,6 +82,23 @@ final readonly class DocController
         $io = new SymfonyStyle(new ArrayInput([]), new NullOutput());
 
         $exitCode = ($this->exportCommand)(io: $io, outputFile: $this->archJsonPath);
+
+        return new JsonResponse(['success' => 0 === $exitCode]);
+    }
+
+    public function updateOpenapiJson(): JsonResponse
+    {
+        if (null === $this->openApiCommand) {
+            return new JsonResponse(
+                data: ['error' => 'OpenAPI command is not available.'],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        $exitCode = $this->openApiCommand->run(
+            new ArrayInput(['--output' => $this->openapiJsonPath]),
+            new NullOutput(),
+        );
 
         return new JsonResponse(['success' => 0 === $exitCode]);
     }

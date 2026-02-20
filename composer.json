@@ -14,6 +14,7 @@
         "symfony/framework-bundle": "^7.4|^8.0"
     },
     "require-dev": {
+        "api-platform/core": "^4.2",
         "phpunit/phpunit": "^12.5"
     },
     "config": {

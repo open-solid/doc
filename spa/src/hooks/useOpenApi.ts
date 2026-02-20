@@ -5,6 +5,7 @@ export interface OpenApiContextValue {
   endpointsByModule: Map<string, Endpoint[]>;
   spec: OpenApiSpec | null;
   loading: boolean;
+  refresh: () => Promise<boolean>;
 }
 
 export const OpenApiContext = createContext<OpenApiContextValue | null>(null);

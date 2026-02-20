@@ -32,5 +32,9 @@ return static function (RoutingConfigurator $routes): void {
         ->add('open_solid_doc_openapi_json_controller', '/openapi.json')
             ->controller(DocController::class.'::openapiJson')
             ->methods(['GET'])
+
+        ->add('open_solid_doc_openapi_json_update_controller', '/openapi.json')
+            ->controller(DocController::class.'::updateOpenapiJson')
+            ->methods(['POST'])
     ;
 };

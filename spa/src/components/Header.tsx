@@ -1,11 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useArchData } from '../hooks/useArchData';
 import { useNavigation } from '../hooks/useNavigation';
+import { useOpenApi } from '../hooks/useOpenApi';
 import { useTheme } from '../hooks/useTheme';
 import { SVG_PATHS } from '../constants';
 
 export function Header() {
   const { refresh } = useArchData();
+  const { refresh: refreshOpenApi } = useOpenApi();
   const { view } = useNavigation();
   const { isDark, setTheme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
@@ -21,11 +23,11 @@ export function Header() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await refresh();
+      await Promise.all([refresh(), refreshOpenApi()]);
     } finally {
       setRefreshing(false);
     }
-  }, [refresh]);
+  }, [refresh, refreshOpenApi]);
 
   return (
     <header className={`sticky top-0 z-10 transition-all duration-200 ${view.type === 'overview' && !scrolled ? 'border-b border-transparent bg-transparent' : 'border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg'}`}>

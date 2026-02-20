@@ -95,6 +95,7 @@ declare global {
       archJsonUrl: string;
       archJsonUpdateUrl: string;
       openapiJsonUrl: string;
+      openapiJsonUpdateUrl: string;
       docsNavigationUrl: string;
     };
   }

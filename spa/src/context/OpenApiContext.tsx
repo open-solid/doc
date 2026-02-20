@@ -63,8 +63,22 @@ export function OpenApiProvider({ children }: { children: ReactNode }) {
     fetchSpec();
   }, [fetchSpec]);
 
+  const refresh = useCallback(async (): Promise<boolean> => {
+    try {
+      const res = await fetch(config.openapiJsonUpdateUrl, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) {
+        await fetchSpec();
+        return true;
+      }
+    } catch {
+      // Silently ignore — OpenAPI is optional
+    }
+    return false;
+  }, [config.openapiJsonUpdateUrl, fetchSpec]);
+
   return (
-    <OpenApiContext.Provider value={{ endpointsByModule, spec, loading }}>
+    <OpenApiContext.Provider value={{ endpointsByModule, spec, loading, refresh }}>
       {children}
     </OpenApiContext.Provider>
   );
