@@ -7,6 +7,7 @@ import { OpenApiProvider } from './context/OpenApiContext';
 import { DocsProvider } from './context/DocsContext';
 import { useNavigation } from './hooks/useNavigation';
 import { useArchData } from './hooks/useArchData';
+import { useOpenApi } from './hooks/useOpenApi';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Toast } from './components/Toast';
@@ -18,17 +19,18 @@ import { DocsPage } from './components/docs/DocsPage';
 import { SVG_PATHS } from './constants';
 
 function EmptyState({ error }: { error: string }) {
-  const { refresh } = useArchData();
+  const { refresh: refreshArch } = useArchData();
+  const { refresh: refreshOpenApi } = useOpenApi();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleGenerate = useCallback(async () => {
     setRefreshing(true);
     try {
-      await refresh();
+      await Promise.all([refreshArch(), refreshOpenApi()]);
     } finally {
       setRefreshing(false);
     }
-  }, [refresh]);
+  }, [refreshArch, refreshOpenApi]);
 
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
