@@ -27,7 +27,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg">
-      <div className="flex items-center justify-between px-8 py-4">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-4">
         <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
           {view.type === 'overview' ? (
             <span className="font-medium">Overview</span>
