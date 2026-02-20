@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Markdown from 'react-markdown';
 import { useDocs } from '../../hooks/useDocs';
 import { useNavigation } from '../../hooks/useNavigation';
@@ -97,9 +97,7 @@ export function DocsPage() {
               </code>
             );
           },
-          pre: ({ children }) => (
-            <pre className="mb-4">{children}</pre>
-          ),
+          pre: DocPre,
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary-300 dark:border-primary-600 pl-4 mb-4 text-slate-600 dark:text-slate-400 italic">
               {children}
@@ -130,6 +128,32 @@ export function DocsPage() {
       >
         {content}
       </Markdown>
+    </div>
+  );
+}
+
+function DocPre({ children }: { children?: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+  const preRef = useRef<HTMLPreElement>(null);
+
+  const handleCopy = useCallback(() => {
+    const text = preRef.current?.textContent ?? '';
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, []);
+
+  return (
+    <div className="relative group mb-4">
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 text-xs rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300"
+      >
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+      <pre ref={preRef}>{children}</pre>
     </div>
   );
 }
