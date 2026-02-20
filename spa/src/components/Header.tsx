@@ -1,12 +1,22 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useArchData } from '../hooks/useArchData';
+import { useNavigation } from '../hooks/useNavigation';
 import { useTheme } from '../hooks/useTheme';
 import { SVG_PATHS } from '../constants';
 
 export function Header() {
   const { refresh } = useArchData();
+  const { view } = useNavigation();
   const { theme, setTheme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -24,7 +34,7 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg">
+    <header className={`sticky top-0 z-10 transition-all duration-200 ${view.type === 'overview' && !scrolled ? 'border-b border-transparent bg-transparent' : 'border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg'}`}>
       <div className="flex items-center justify-between px-8 py-3">
         <button
           type="button"

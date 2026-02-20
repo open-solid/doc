@@ -1,6 +1,6 @@
 export function HeroPattern() {
   return (
-    <div className="absolute -inset-x-8 -top-8 -z-10 h-[28rem] pointer-events-none overflow-visible">
+    <div className="absolute -inset-x-8 -top-25 -z-10 h-[28rem] pointer-events-none overflow-visible">
       <div
         className="absolute left-1/2 top-0 -translate-x-1/2
           h-[24rem] w-[60rem]
