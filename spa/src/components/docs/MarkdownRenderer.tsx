@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useTheme } from '../../hooks/useTheme';
+import { MermaidDiagram } from './MermaidDiagram';
 
 interface MarkdownRendererProps {
   content: string;
@@ -114,6 +115,10 @@ function CodeBlock({ className, children }: { className?: string; children?: Rea
   }
 
   const code = String(children).replace(/\n$/, '');
+
+  if (match[1] === 'mermaid') {
+    return <MermaidDiagram code={code} />;
+  }
 
   return (
     <div className="relative group mb-4">
