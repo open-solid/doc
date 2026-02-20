@@ -17,6 +17,31 @@ return static function (ContainerConfigurator $container): void {
     $container->extension('open_solid_doc', [
         'company' => 'test-company',
         'project' => 'test-project',
+        'navigation' => [
+            [
+                'title' => 'Guides',
+                'items' => [
+                    [
+                        'title' => 'Introduction',
+                        'path' => 'tests/Functional/docs/introduction.md',
+                        'items' => [
+                            ['title' => 'Getting started', 'anchor' => 'getting-started'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Quickstart',
+                        'path' => 'tests/Functional/docs/quickstart.md',
+                        'items' => [
+                            ['title' => 'What\'s next?', 'anchor' => 'whats-next'],
+                        ],
+                    ],
+                    [
+                        'title' => 'SDKs',
+                        'path' => 'tests/Functional/docs/sdk/README.md',
+                    ],
+                ],
+            ],
+        ],
     ]);
 
     $container->services()

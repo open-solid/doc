@@ -77,9 +77,17 @@ export interface ExternalCall {
   targetModule: string;
 }
 
+export interface DocsNavItem {
+  title: string;
+  path: string | null;
+  anchor: string | null;
+  items: DocsNavItem[];
+}
+
 export type NavigationView =
   | { type: 'overview' }
-  | { type: 'module'; context: string; module: string; tab?: string };
+  | { type: 'module'; context: string; module: string; tab?: string }
+  | { type: 'doc'; path: string; anchor?: string };
 
 declare global {
   interface Window {
@@ -87,6 +95,7 @@ declare global {
       archJsonUrl: string;
       archJsonUpdateUrl: string;
       openapiJsonUrl: string;
+      docsNavigationUrl: string;
     };
   }
 }

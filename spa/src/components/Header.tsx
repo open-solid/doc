@@ -31,6 +31,14 @@ export function Header() {
         <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
           {view.type === 'overview' ? (
             <span className="font-medium">Overview</span>
+          ) : view.type === 'doc' ? (
+            <>
+              <span className="text-slate-500">Docs</span>
+              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d={SVG_PATHS.chevronRight} />
+              </svg>
+              <span className="font-medium">{view.path.split('/').pop()?.replace(/\.md$/, '') ?? 'Document'}</span>
+            </>
           ) : (
             <>
               <span className="text-slate-500">{view.context}</span>

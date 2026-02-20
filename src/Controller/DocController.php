@@ -20,6 +20,8 @@ final readonly class DocController
         private string $openapiJsonPath,
         private string $company,
         private string $project,
+        private array $navigation,
+        private string $projectDir,
     ) {
     }
 
@@ -28,6 +30,7 @@ final readonly class DocController
         $archJsonUrl = $this->urlGenerator->generate('open_solid_doc_json_controller');
         $archJsonUpdateUrl = $this->urlGenerator->generate('open_solid_doc_json_update_controller');
         $openapiJsonUrl = $this->urlGenerator->generate('open_solid_doc_openapi_json_controller');
+        $docsNavigationUrl = $this->urlGenerator->generate('open_solid_doc_docs_navigation_controller');
 
         ob_start();
         include __DIR__ . '/../../templates/doc.html.php';
@@ -78,5 +81,79 @@ final readonly class DocController
         $exitCode = ($this->exportCommand)(io: $io, outputFile: $this->archJsonPath);
 
         return new JsonResponse(['success' => 0 === $exitCode]);
+    }
+
+    public function navigationJson(): JsonResponse
+    {
+        return new JsonResponse([
+            'navigation' => $this->resolveNavigation($this->navigation),
+        ]);
+    }
+
+    public function markdownContent(Request $request): Response
+    {
+        $path = $request->query->get('path', '');
+
+        $allowedPaths = $this->collectPaths($this->navigation);
+
+        if (!in_array($path, $allowedPaths, true)) {
+            return new JsonResponse(
+                data: ['error' => 'Document not found.'],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        $fullPath = $this->projectDir.'/'.$path;
+
+        if (!is_file($fullPath)) {
+            return new JsonResponse(
+                data: ['error' => 'Document not found.'],
+                status: Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        return new Response(
+            content: file_get_contents($fullPath),
+            headers: ['Content-Type' => 'text/markdown'],
+        );
+    }
+
+    private function resolveNavigation(array $items, ?string $parentPath = null): array
+    {
+        $resolved = [];
+
+        foreach ($items as $item) {
+            $path = $item['path'] ?? $parentPath;
+            $anchor = $item['anchor'] ?? null;
+
+            if (!isset($item['path']) && isset($item['anchor'])) {
+                $path = $parentPath;
+            }
+
+            $resolved[] = [
+                'title' => $item['title'],
+                'path' => isset($item['path']) ? $item['path'] : (isset($item['anchor']) ? $parentPath : null),
+                'anchor' => $anchor,
+                'items' => isset($item['items']) ? $this->resolveNavigation($item['items'], $path) : [],
+            ];
+        }
+
+        return $resolved;
+    }
+
+    private function collectPaths(array $items): array
+    {
+        $paths = [];
+
+        foreach ($items as $item) {
+            if (isset($item['path'])) {
+                $paths[] = $item['path'];
+            }
+            if (isset($item['items'])) {
+                $paths = array_merge($paths, $this->collectPaths($item['items']));
+            }
+        }
+
+        return array_unique($paths);
     }
 }

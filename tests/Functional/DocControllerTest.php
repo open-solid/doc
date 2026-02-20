@@ -57,6 +57,67 @@ final class DocControllerTest extends TestCase
         self::assertJson($response->getContent());
     }
 
+    public function testNavigationJsonReturnsResolvedTree(): void
+    {
+        $request = Request::create('/doc/navigation.json');
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame('application/json', $response->headers->get('Content-Type'));
+
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertArrayHasKey('navigation', $data);
+
+        $nav = $data['navigation'];
+        self::assertCount(1, $nav);
+        self::assertSame('Guides', $nav[0]['title']);
+        self::assertNull($nav[0]['path']);
+        self::assertNull($nav[0]['anchor']);
+
+        // Check nested items
+        $items = $nav[0]['items'];
+        self::assertCount(2, $items);
+        self::assertSame('Introduction', $items[0]['title']);
+        self::assertSame('tests/Functional/docs/introduction.md', $items[0]['path']);
+
+        // Anchor-only child inherits parent path
+        $children = $items[0]['items'];
+        self::assertCount(1, $children);
+        self::assertSame('Getting started', $children[0]['title']);
+        self::assertSame('tests/Functional/docs/introduction.md', $children[0]['path']);
+        self::assertSame('getting-started', $children[0]['anchor']);
+    }
+
+    public function testMarkdownContentReturnsFileContent(): void
+    {
+        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/introduction.md']);
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertStringContainsString('text/markdown', $response->headers->get('Content-Type'));
+        self::assertStringContainsString('# Introduction', $response->getContent());
+    }
+
+    public function testMarkdownContentReturns404ForUnlistedPath(): void
+    {
+        $request = Request::create('/doc/content', 'GET', ['path' => 'tests/Functional/docs/quickstart.md']);
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testMarkdownContentReturns404ForPathTraversal(): void
+    {
+        $request = Request::create('/doc/content', 'GET', ['path' => '../../etc/passwd']);
+
+        $response = $this->kernel->handle($request);
+
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     public function testUpdateArchJsonExportsArchitecture(): void
     {
         $request = Request::create('/arch.json', 'POST');

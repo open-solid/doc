@@ -15,6 +15,9 @@ class OpenSolidDocBundle extends AbstractBundle
             ->children()
                 ->scalarNode('company')->defaultValue('Company')->end()
                 ->scalarNode('project')->defaultValue('Project')->end()
+                ->arrayNode('navigation')
+                    ->variablePrototype()->end()
+                ->end()
             ->end();
     }
 
@@ -22,7 +25,8 @@ class OpenSolidDocBundle extends AbstractBundle
     {
         $container->parameters()
             ->set('open_solid_doc.company', $config['company'])
-            ->set('open_solid_doc.project', $config['project']);
+            ->set('open_solid_doc.project', $config['project'])
+            ->set('open_solid_doc.navigation', $config['navigation']);
 
         $container->import('../config/services.php');
     }

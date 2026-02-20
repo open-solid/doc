@@ -91,6 +91,8 @@ return static function (ContainerConfigurator $container): void {
             param('kernel.project_dir').'/openapi.json',
             param('open_solid_doc.company'),
             param('open_solid_doc.project'),
+            param('open_solid_doc.navigation'),
+            param('kernel.project_dir'),
         ])
         ->tag('controller.service_arguments');
 };
