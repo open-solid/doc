@@ -5,19 +5,19 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return static function (RoutingConfigurator $routes): void {
     $routes
-        ->add('arch_viewer_controller', '/arch')
+        ->add('open_solid_doc_controller', '/doc')
             ->controller(DocController::class)
             ->methods(['GET'])
 
-        ->add('arch_json_controller', '/arch.json')
+        ->add('open_solid_doc_json_controller', '/arch.json')
             ->controller(DocController::class.'::archJson')
             ->methods(['GET'])
 
-        ->add('arch_json_update_controller', '/arch.json')
+        ->add('open_solid_doc_json_update_controller', '/arch.json')
             ->controller(DocController::class.'::updateArchJson')
             ->methods(['POST'])
 
-        ->add('arch_openapi_json_controller', '/openapi.json')
+        ->add('open_solid_doc_openapi_json_controller', '/openapi.json')
             ->controller(DocController::class.'::openapiJson')
             ->methods(['GET'])
     ;

@@ -25,9 +25,9 @@ final readonly class DocController
 
     public function __invoke(Request $request): Response
     {
-        $archJsonUrl = $this->urlGenerator->generate('arch_json_controller');
-        $archJsonUpdateUrl = $this->urlGenerator->generate('arch_json_update_controller');
-        $openapiJsonUrl = $this->urlGenerator->generate('arch_openapi_json_controller');
+        $archJsonUrl = $this->urlGenerator->generate('open_solid_doc_json_controller');
+        $archJsonUpdateUrl = $this->urlGenerator->generate('open_solid_doc_json_update_controller');
+        $openapiJsonUrl = $this->urlGenerator->generate('open_solid_doc_openapi_json_controller');
 
         ob_start();
         include __DIR__ . '/../../templates/doc.html.php';

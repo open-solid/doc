@@ -37,7 +37,7 @@ final class DocControllerTest extends TestCase
 
     public function testViewerPageReturnsHtmlResponse(): void
     {
-        $request = Request::create('/arch');
+        $request = Request::create('/doc');
 
         $response = $this->kernel->handle($request);
 

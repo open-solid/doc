@@ -27,9 +27,9 @@ final class DocBundleTest extends TestCase
     {
         $container = $this->kernel->getContainer()->get('test.service_container');
 
-        self::assertTrue($container->has('arch_viewer.arch_export_command'));
+        self::assertTrue($container->has('open_solid_doc.arch_export_command'));
 
-        $command = $container->get('arch_viewer.arch_export_command');
+        $command = $container->get('open_solid_doc.arch_export_command');
 
         self::assertInstanceOf(ExportCommand::class, $command);
     }

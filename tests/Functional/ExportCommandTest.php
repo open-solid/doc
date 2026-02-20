@@ -19,7 +19,7 @@ final class ExportCommandTest extends TestCase
     {
         $this->kernel = new TestKernel('test', true);
         $this->kernel->boot();
-        $this->outputFile = sys_get_temp_dir().'/arch_viewer_test/arch-export.json';
+        $this->outputFile = sys_get_temp_dir().'/open_solid_doc_test/arch-export.json';
     }
 
     protected function tearDown(): void
