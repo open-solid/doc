@@ -141,7 +141,7 @@ export function ModulePage({ contextName, moduleName, initialTab }: ModulePagePr
               {activeTab === 'endpoints' && spec && (
                 <div className="grid grid-cols-1 gap-6 fade-in">
                   {moduleEndpoints.map((ep, idx) => (
-                    <div key={`${ep.method}-${ep.path}-${idx}`} id={`endpoint-${idx}`} className="scroll-mt-24">
+                    <div key={`${ep.method}-${ep.path}-${idx}`} id={`endpoint-${idx}`} className="scroll-mt-18">
                       <EndpointCard endpoint={ep} spec={spec} />
                     </div>
                   ))}
@@ -151,18 +151,18 @@ export function ModulePage({ contextName, moduleName, initialTab }: ModulePagePr
               {activeTab !== 'endpoints' && availableSections.filter(s => s.key === activeTab).map(section => (
                 <div key={section.key} className="grid grid-cols-1 gap-6 fade-in">
                   {section.key === 'externalCalls' && mod.externalCalls?.map((item, idx) => (
-                    <div key={idx} id={`external-${idx}`} className="scroll-mt-24">
+                    <div key={idx} id={`external-${idx}`} className="scroll-mt-18">
                       <ExternalCallCard item={item} color={section.color} moduleName={moduleName} index={idx} />
                     </div>
                   ))}
                   {section.key === 'eventSubscribers' && mod.eventSubscribers?.map((item, idx) => (
-                    <div key={idx} id={`subscriber-${idx}`} className="scroll-mt-24">
+                    <div key={idx} id={`subscriber-${idx}`} className="scroll-mt-18">
                       <SubscriberCard item={item} color={section.color} contextName={contextName} moduleName={moduleName} index={idx} />
                     </div>
                   ))}
                   {section.key !== 'externalCalls' && section.key !== 'eventSubscribers' && (
                     (mod[section.key] as unknown[])?.map((item, idx) => (
-                      <div key={idx} id={`${SECTION_ID_PREFIX[section.key] ?? section.key}-${idx}`} className="scroll-mt-24">
+                      <div key={idx} id={`${SECTION_ID_PREFIX[section.key] ?? section.key}-${idx}`} className="scroll-mt-18">
                         <ItemCard item={item as never} type={section.key as 'commands' | 'queries' | 'domainEvents' | 'eventSubscribers'} color={section.color} />
                       </div>
                     ))

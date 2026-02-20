@@ -48,7 +48,7 @@ export function ContentNav({ items }: ContentNavProps) {
   }
 
   return (
-    <nav className="hidden xl:block w-48 shrink-0 sticky top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto">
+    <nav className="hidden xl:block w-48 shrink-0 sticky top-18 self-start max-h-[calc(100vh-120px)] overflow-y-auto">
       <ul className="space-y-0.5">
         {items.map(item => (
           <li key={item.id}>
