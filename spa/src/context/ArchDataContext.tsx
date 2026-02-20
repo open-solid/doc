@@ -42,13 +42,13 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       const res = await fetch(config.archJsonUpdateUrl, { method: 'POST' });
       const result = await res.json();
       if (result.success) {
-        setToastMessage({ text: 'Architecture data updated successfully!', success: true });
+        setToastMessage({ text: 'Project data updated successfully!', success: true });
         await fetchData();
       } else {
-        setToastMessage({ text: 'Failed to update architecture data.', success: false });
+        setToastMessage({ text: 'Failed to update project data.', success: false });
       }
     } catch {
-      setToastMessage({ text: 'Error updating architecture data.', success: false });
+      setToastMessage({ text: 'Error updating project data.', success: false });
     }
   }, [config.archJsonUpdateUrl, fetchData]);
 

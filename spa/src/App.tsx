@@ -71,7 +71,7 @@ function MainContent() {
   }
 
   if (error || !data) {
-    return <EmptyState error={error ?? 'Failed to load architecture data.'} />;
+    return <EmptyState error={error ?? 'Failed to load project data.'} />;
   }
 
   if (view.type === 'module') {
