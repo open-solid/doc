@@ -22,8 +22,45 @@ export function MermaidDiagram({ code }: MermaidDiagramProps) {
         const mermaid = await mermaidPromise;
         mermaid.initialize({
           startOnLoad: false,
-          theme: isDark ? 'dark' : 'default',
+          theme: 'base',
           fontFamily: 'inherit',
+          themeVariables: isDark
+            ? {
+                background: 'transparent',
+                primaryColor: '#312e81',
+                primaryTextColor: '#e2e8f0',
+                primaryBorderColor: '#6366f1',
+                lineColor: '#6366f1',
+                secondaryColor: '#1e293b',
+                tertiaryColor: '#1e1b4b',
+                noteBkgColor: '#1e293b',
+                noteTextColor: '#cbd5e1',
+                noteBorderColor: '#334155',
+                textColor: '#e2e8f0',
+                titleColor: '#e2e8f0',
+                edgeLabelBackground: '#1e293b',
+                classText: '#e2e8f0',
+                relationColor: '#818cf8',
+                labelTextColor: '#cbd5e1',
+              }
+            : {
+                background: 'transparent',
+                primaryColor: '#e0e7ff',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#6366f1',
+                lineColor: '#6366f1',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#eef2ff',
+                noteBkgColor: '#f1f5f9',
+                noteTextColor: '#334155',
+                noteBorderColor: '#cbd5e1',
+                textColor: '#1e293b',
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#f1f5f9',
+                classText: '#1e293b',
+                relationColor: '#4f46e5',
+                labelTextColor: '#475569',
+              },
         });
 
         const container = document.createElement('div');

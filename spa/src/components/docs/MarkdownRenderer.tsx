@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    <div className="prose-doc max-w-4xl">
+    <div className="prose-doc max-w-4xl mt-10">
       <Markdown
         remarkPlugins={[remarkGfm]}
         components={{
