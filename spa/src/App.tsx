@@ -9,6 +9,7 @@ import { useArchData } from './hooks/useArchData';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Toast } from './components/Toast';
+import { ScrollToTop } from './components/ScrollToTop';
 import { Spinner } from './components/Spinner';
 import { OverviewPage } from './components/overview/OverviewPage';
 import { ModulePage } from './components/module/ModulePage';
@@ -96,6 +97,7 @@ export function App() {
                 </main>
               </div>
               <Toast />
+              <ScrollToTop />
             </NavigationProvider>
           </OpenApiProvider>
         </DocsProvider>
