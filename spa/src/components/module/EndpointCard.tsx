@@ -283,7 +283,7 @@ function AttributeRow({ attr, isLast, depth = 0 }: { attr: Attribute; isLast: bo
             </svg>
           </button>
         )}
-        <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">{attr.name}</span>
+        <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-300">{attr.name}</span>
         {attr.optional && (
           <span className="text-xs text-slate-400 dark:text-slate-500">optional</span>
         )}
@@ -416,7 +416,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           </div>
 
           {endpoint.description && (
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">{endpoint.description}</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-300 mb-1">{endpoint.description}</h3>
           )}
           {endpoint.summary && (
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{endpoint.summary}</p>
@@ -438,7 +438,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
                       onClick={() => setActiveResponseCode(r.code)}
                       className={`text-[11px] font-semibold px-1.5 rounded-md border transition-colors ${
                         r.code === activeResponseCode
-                          ? 'border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          ? 'border-slate-900 dark:border-slate-100 bg-slate-900 dark:text-slate-300 text-white dark:text-slate-900'
                           : 'border-slate-300 dark:border-slate-600 bg-transparent text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                       }`}
                     >
@@ -467,7 +467,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
         <div className="p-6 bg-slate-50 dark:bg-slate-900/50">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Request</h4>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Request</h4>
               <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
             </div>
             <div className="flex items-center gap-2 mb-3">
@@ -481,9 +481,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
 
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Response</h4>
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Response</h4>
               {activeResponse && (
-                <span className="text-[11px] font-semibold px-1.5 rounded-md border border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900">
+                <span className="text-[11px] font-semibold px-1.5 rounded-md border border-slate-900 dark:border-slate-100 bg-slate-900 dark:text-slate-300 text-white dark:text-slate-900">
                   {activeResponse.code}
                 </span>
               )}

@@ -469,7 +469,7 @@ export function ContextMap() {
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
             <button
-              className="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-200 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+              className="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
               onClick={() => setFiltersVisible(v => !v)}
             >
               {filtersVisible ? 'Hide Filters' : 'Filters'}

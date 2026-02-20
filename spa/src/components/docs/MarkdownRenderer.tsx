@@ -17,22 +17,22 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h1 id={slugify(children)} className="text-3xl font-bold mt-0 mb-6 text-slate-900 dark:text-white">
+            <h1 id={slugify(children)} className="text-3xl font-bold mt-0 mb-6 text-slate-900 dark:text-slate-300">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 id={slugify(children)} className="text-2xl font-semibold mt-10 mb-4 text-slate-900 dark:text-white pb-2">
+            <h2 id={slugify(children)} className="text-2xl font-semibold mt-10 mb-4 text-slate-900 dark:text-slate-300 pb-2">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 id={slugify(children)} className="text-xl font-semibold mt-8 mb-3 text-slate-900 dark:text-white">
+            <h3 id={slugify(children)} className="text-xl font-semibold mt-8 mb-3 text-slate-900 dark:text-slate-300">
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 id={slugify(children)} className="text-lg font-medium mt-6 mb-2 text-slate-900 dark:text-white">
+            <h4 id={slugify(children)} className="text-lg font-medium mt-6 mb-2 text-slate-900 dark:text-slate-300">
               {children}
             </h4>
           ),
@@ -84,7 +84,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             </tr>
           ),
           strong: ({ children }) => (
-            <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>
+            <strong className="font-semibold text-slate-900 dark:text-slate-300">{children}</strong>
           ),
         }}
       >
@@ -108,7 +108,7 @@ function CodeBlock({ className, children }: { className?: string; children?: Rea
 
   if (!match) {
     return (
-      <code className="bg-slate-100 dark:bg-slate-800 rounded px-1.5 py-0.5 text-sm font-mono text-slate-800 dark:text-slate-200">
+      <code className="bg-slate-100 dark:bg-slate-800 rounded px-1.5 py-0.5 text-sm font-mono text-slate-800 dark:text-slate-300">
         {children}
       </code>
     );

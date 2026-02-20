@@ -59,7 +59,7 @@ export function ContentNav({ items }: ContentNavProps) {
                 item.method ? 'flex items-center justify-between gap-1.5' : 'truncate'
               } ${
                 activeId === item.id
-                  ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
+                  ? 'text-slate-900 dark:text-slate-300 bg-slate-100 dark:bg-slate-800'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
               }`}
               title={item.label}
