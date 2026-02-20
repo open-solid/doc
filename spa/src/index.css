@@ -129,6 +129,21 @@ details[open] .chevron { transform: rotate(90deg); }
   background-image: radial-gradient(circle at 1px 1px, rgb(71 85 105 / 0.15) 1px, transparent 0);
 }
 
+/* Doc tree connector line */
+.doc-tree-line { position: relative; }
+.doc-tree-line::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 0.5px;
+  background-color: rgb(203 213 225 / 0.6);
+}
+.dark .doc-tree-line::before {
+  background-color: rgb(71 85 105 / 0.6);
+}
+
 /* Item card with left accent */
 .item-card {
   transition: background-color 0.15s ease;

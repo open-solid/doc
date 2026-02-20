@@ -76,7 +76,7 @@ function DocsNavTree({ items, depth, currentNav, navigate }: {
   }, []);
 
   return (
-    <ul className={depth > 0 ? 'space-y-0.5' : 'space-y-1'}>
+    <ul className={depth === 1 ? 'doc-tree-line space-y-0.5' : depth > 0 ? 'space-y-0.5' : 'space-y-1'}>
       {items.map((item, i) => {
         const hasChildren = item.items.length > 0;
         const hasPath = item.path !== null;

@@ -51,7 +51,7 @@ export function DocsPage() {
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 id={slugify(children)} className="text-2xl font-semibold mt-10 mb-4 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">
+            <h2 id={slugify(children)} className="text-2xl font-semibold mt-10 mb-4 text-slate-900 dark:text-white pb-2">
               {children}
             </h2>
           ),
