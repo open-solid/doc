@@ -162,7 +162,11 @@ function ModuleNavList({ context, modules, currentNav, navigate, getModuleDocs }
         return;
       }
     }
-  }, [modules, currentNav, getModuleDocs]);
+    const isModuleActive = currentNav.startsWith(`module:${context}:`);
+    if (!isModuleActive) {
+      setExpandedModule(null);
+    }
+  }, [modules, context, currentNav, getModuleDocs]);
 
   return (
     <ul className="space-y-1">
