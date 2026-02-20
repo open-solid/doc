@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
   content: string;
@@ -9,6 +10,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="prose-doc max-w-4xl">
       <Markdown
+        remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
             <h1 id={slugify(children)} className="text-3xl font-bold mt-0 mb-6 text-slate-900 dark:text-white">
@@ -72,19 +74,24 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             <hr className="my-8 border-slate-200 dark:border-slate-700" />
           ),
           table: ({ children }) => (
-            <div className="mb-4 overflow-x-auto">
-              <table className="min-w-full border border-slate-200 dark:border-slate-700 text-sm">{children}</table>
+            <div className="mb-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+              <table className="min-w-full text-sm border-collapse">{children}</table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-semibold text-slate-700 dark:text-slate-300">
+            <th className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-300 [&:not(:last-child)]:border-r">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border border-slate-200 dark:border-slate-700 px-3 py-2 text-slate-700 dark:text-slate-300">
+            <td className="border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 text-slate-700 dark:text-slate-300 [&:not(:last-child)]:border-r last:[&:parent]:border-b-0">
               {children}
             </td>
+          ),
+          tr: ({ children }) => (
+            <tr className="last:*:border-b-0 even:bg-slate-50 even:dark:bg-slate-800/50">
+              {children}
+            </tr>
           ),
           strong: ({ children }) => (
             <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>
