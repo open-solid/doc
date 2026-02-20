@@ -7,7 +7,7 @@ import { SVG_PATHS } from '../constants';
 export function Header() {
   const { refresh } = useArchData();
   const { view } = useNavigation();
-  const { theme, setTheme } = useTheme();
+  const { isDark, setTheme } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -26,12 +26,6 @@ export function Header() {
       setRefreshing(false);
     }
   }, [refresh]);
-
-  const themes: Array<{ key: 'light' | 'system' | 'dark'; title: string; icon: string }> = [
-    { key: 'light', title: 'Light', icon: SVG_PATHS.sun },
-    { key: 'system', title: 'System', icon: SVG_PATHS.monitor },
-    { key: 'dark', title: 'Dark', icon: SVG_PATHS.moon },
-  ];
 
   return (
     <header className={`sticky top-0 z-10 transition-all duration-200 ${view.type === 'overview' && !scrolled ? 'border-b border-transparent bg-transparent' : 'border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-lg'}`}>
@@ -57,22 +51,15 @@ export function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" d={SVG_PATHS.refresh} />
             </svg>
           </button>
-          <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-            {themes.map(t => (
-              <button
-                key={t.key}
-                data-theme={t.key}
-                title={t.title}
-                aria-pressed={theme === t.key}
-                className="theme-btn p-2 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-                onClick={() => setTheme(t.key)}
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d={t.icon} />
-                </svg>
-              </button>
-            ))}
-          </div>
+          <button
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d={isDark ? SVG_PATHS.moon : SVG_PATHS.sun} />
+            </svg>
+          </button>
         </div>
       </div>
     </header>

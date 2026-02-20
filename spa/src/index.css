@@ -80,17 +80,6 @@ details[open] .chevron { transform: rotate(90deg); }
   box-shadow: 0 8px 25px -5px rgb(99 102 241 / 0.12);
 }
 
-/* Theme toggle */
-.theme-btn[aria-pressed="true"] {
-  background-color: rgb(248 250 252);
-  color: rgb(99 102 241);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
-}
-.dark .theme-btn[aria-pressed="true"] {
-  background-color: rgb(51 65 85);
-  color: rgb(129 140 248);
-}
-
 /* Spinner */
 .spinner {
   width: 40px;
