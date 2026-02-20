@@ -10,3 +10,39 @@ To get started, create a new application in your developer settings, then read a
 | --- | --- | --- |
 | Contacts | Conversations | Group messages |
  | Properties | Tasks | Webhooks |
+
+```php
+<?php
+
+namespace App\Models;
+
+class Property extends Model
+{
+    public function unitTypes()
+    {
+        return $this->hasMany(UnitType::class);
+    }
+}
+```
+
+```mermaid
+classDiagram
+    direction TB
+
+    class Property {
+        <<AggregateRoot>>
+        +UnitType[] unitTypes
+    }
+
+    class UnitType {
+        <<Entity>>
+        +RatePlan[] ratePlans
+    }
+
+    class RatePlan {
+        <<Entity>>
+    }
+
+    Property "1" *-- "*" UnitType : contains
+    UnitType "1" *-- "*" RatePlan : contains
+```

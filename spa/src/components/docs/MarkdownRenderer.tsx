@@ -1,6 +1,9 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTheme } from '../../hooks/useTheme';
 
 interface MarkdownRendererProps {
   content: string;
@@ -49,22 +52,8 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
               {children}
             </a>
           ),
-          code: ({ className, children }) => {
-            const isBlock = className?.startsWith('language-');
-            if (isBlock) {
-              return (
-                <code className="block bg-slate-100 dark:bg-slate-800 rounded-lg p-4 mb-4 text-sm font-mono overflow-x-auto text-slate-800 dark:text-slate-200 whitespace-pre">
-                  {children}
-                </code>
-              );
-            }
-            return (
-              <code className="bg-slate-100 dark:bg-slate-800 rounded px-1.5 py-0.5 text-sm font-mono text-slate-800 dark:text-slate-200">
-                {children}
-              </code>
-            );
-          },
-          pre: DocPre,
+          code: CodeBlock,
+          pre: ({ children }) => <>{children}</>,
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary-300 dark:border-primary-600 pl-4 mb-4 text-slate-600 dark:text-slate-400 italic">
               {children}
@@ -104,28 +93,50 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
-function DocPre({ children }: { children?: React.ReactNode }) {
+function CodeBlock({ className, children }: { className?: string; children?: React.ReactNode }) {
+  const { isDark } = useTheme();
   const [copied, setCopied] = useState(false);
-  const preRef = useRef<HTMLPreElement>(null);
+  const match = className?.match(/language-(\w+)/);
 
-  const handleCopy = useCallback(() => {
-    const text = preRef.current?.textContent ?? '';
-    navigator.clipboard.writeText(text).then(() => {
+  const handleCopy = useCallback((code: string) => {
+    navigator.clipboard.writeText(code).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
   }, []);
 
+  if (!match) {
+    return (
+      <code className="bg-slate-100 dark:bg-slate-800 rounded px-1.5 py-0.5 text-sm font-mono text-slate-800 dark:text-slate-200">
+        {children}
+      </code>
+    );
+  }
+
+  const code = String(children).replace(/\n$/, '');
+
   return (
     <div className="relative group mb-4">
       <button
         type="button"
-        onClick={handleCopy}
+        onClick={() => handleCopy(code)}
         className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 text-xs rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300"
       >
         {copied ? 'Copied!' : 'Copy'}
       </button>
-      <pre ref={preRef}>{children}</pre>
+      <SyntaxHighlighter
+        style={isDark ? oneDark : oneLight}
+        language={match[1]}
+        customStyle={{
+          margin: 0,
+          borderRadius: '0.5rem',
+          fontSize: '0.875rem',
+          background: isDark ? 'rgb(30 41 59)' : 'rgb(241 245 249)',
+        }}
+        codeTagProps={{ style: { background: 'transparent' } }}
+      >
+        {code}
+      </SyntaxHighlighter>
     </div>
   );
 }
