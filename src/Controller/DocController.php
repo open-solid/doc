@@ -86,7 +86,7 @@ final readonly class DocController
     public function navigationJson(): JsonResponse
     {
         return new JsonResponse([
-            'navigation' => $this->resolveNavigation($this->filterNavigation('doc')),
+            'navigation' => $this->resolveNavigation($this->filterNavigation('general')),
         ]);
     }
 

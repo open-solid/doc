@@ -20,7 +20,7 @@ return static function (ContainerConfigurator $container): void {
         'navigation' => [
             [
                 'title' => 'Guides',
-                'type' => 'doc',
+                'type' => 'general',
                 'items' => [
                     [
                         'title' => 'Introduction',
