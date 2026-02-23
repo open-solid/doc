@@ -8,7 +8,9 @@
     "lint": "eslint spa/"
   },
   "dependencies": {
+    "@codemirror/lang-json": "^6.0.2",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@uiw/react-codemirror": "^4.25.4",
     "mermaid": "^11.12.3",
     "pixi.js": "^7.4.2",
     "prism-react-renderer": "^2.4.1",

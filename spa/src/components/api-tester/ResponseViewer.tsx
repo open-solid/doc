@@ -69,7 +69,9 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
         <span className={`text-sm font-mono font-semibold ${statusColor(response.status)}`}>
           {response.status} {response.statusText}
         </span>
-        <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{response.timeMs}ms</span>
+        <span className="text-slate-300 dark:text-slate-600">&bull;</span>
+        <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{response.timeMs} ms</span>
+        <span className="text-slate-300 dark:text-slate-600">&bull;</span>
         <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{formatSize(response.sizeBytes)}</span>
         {error && (
           <span className="text-[11px] text-rose-500 dark:text-rose-400 truncate">{error}</span>

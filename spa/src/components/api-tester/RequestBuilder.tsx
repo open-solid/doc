@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { KeyValuePair } from './useApiTester';
 import { KeyValueEditor } from './KeyValueEditor';
+import { JsonEditor } from './JsonEditor';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -144,15 +145,9 @@ export function RequestBuilder({
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
+      <div className={`flex-1 min-h-0 p-3 ${activeTab === 'body' ? '' : 'overflow-y-auto space-y-4'}`}>
         {activeTab === 'body' && (
-          <textarea
-            value={body}
-            onChange={e => onBodyChange(e.target.value)}
-            rows={16}
-            spellCheck={false}
-            className="w-full h-full min-h-[200px] p-3 text-xs font-mono bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-lg text-slate-700 dark:text-slate-300 outline-none focus:border-primary-400 dark:focus:border-primary-500 resize-none transition-colors"
-          />
+          <JsonEditor value={body} onChange={onBodyChange} />
         )}
 
         {activeTab === 'params' && (

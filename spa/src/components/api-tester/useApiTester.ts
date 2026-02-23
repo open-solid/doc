@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo } from 'react';
 import type { Endpoint, OpenApiSpec } from '../../openapi';
 import { generateExampleJson, resolveSchema } from '../../utils/schema';
 
+const METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH']);
+
 export interface KeyValuePair {
   id: string;
   key: string;
@@ -103,6 +105,8 @@ function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
   if (bodyEntry?.schema) {
     const resolved = resolveSchema(bodyEntry.schema, spec);
     body = JSON.stringify(generateExampleJson(resolved, spec), null, 2);
+  } else if (METHODS_WITH_BODY.has(endpoint.method.toUpperCase())) {
+    body = '{}';
   }
 
   return {
