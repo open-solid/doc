@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { KeyValuePair, BodyFormat } from './useApiTester';
 import { KeyValueEditor } from './KeyValueEditor';
 
@@ -56,6 +56,17 @@ export function RequestBuilder({
   urlInputRef,
 }: RequestBuilderProps) {
   const [activeTab, setActiveTab] = useState<Tab>(hasRequestBody ? 'body' : 'params');
+  const selectRef = useRef<HTMLSelectElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  // Resize select to fit the selected method text
+  useEffect(() => {
+    if (measureRef.current && selectRef.current) {
+      const style = getComputedStyle(selectRef.current);
+      const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      selectRef.current.style.width = `${measureRef.current.offsetWidth + padding}px`;
+    }
+  }, [method]);
 
   const pathParamKeys = new Set(pathParams.map(p => p.key));
 
@@ -66,15 +77,22 @@ export function RequestBuilder({
       {/* Top bar: method + URL + send as single input */}
       <div className="p-3">
         <div className="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus-within:border-primary-400 dark:focus-within:border-primary-500 transition-colors">
-          <select
-            value={method}
-            onChange={e => onMethodChange(e.target.value)}
-            className={`shrink-0 px-2.5 py-1.5 text-xs font-bold uppercase bg-transparent border-none outline-none ${METHOD_SELECT_COLORS[method] ?? 'text-slate-600'}`}
-          >
-            {METHODS.map(m => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
+          <div className="shrink-0 relative flex items-center">
+            <span ref={measureRef} className="absolute invisible whitespace-nowrap text-xs font-bold uppercase" aria-hidden="true">{method}</span>
+            <select
+              ref={selectRef}
+              value={method}
+              onChange={e => onMethodChange(e.target.value)}
+              className={`appearance-none pl-2.5 pr-5 py-1.5 text-xs font-bold uppercase bg-transparent border-none outline-none cursor-pointer ${METHOD_SELECT_COLORS[method] ?? 'text-slate-600'}`}
+            >
+              {METHODS.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <svg className="absolute right-1 w-3 h-3 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
           <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 shrink-0" />
           <input
             ref={urlInputRef}
