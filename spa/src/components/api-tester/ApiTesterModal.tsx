@@ -67,7 +67,6 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
   const widthsRef = useRef(panelWidths);
   widthsRef.current = panelWidths;
 
-  const hasRequestBody = !!endpoint.requestBody;
 
   // Body scroll lock
   useEffect(() => {
@@ -210,16 +209,13 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
               pathParams={tester.request.pathParams}
               queryParams={tester.request.queryParams}
               headers={tester.request.headers}
-              bodyFormat={tester.request.bodyFormat}
               body={tester.request.body}
-              hasRequestBody={hasRequestBody}
               sending={tester.sending}
               onMethodChange={tester.setMethod}
               onUrlChange={tester.setUrl}
               onPathParamsChange={tester.setPathParams}
               onQueryParamsChange={tester.setQueryParams}
               onHeadersChange={tester.setHeaders}
-              onBodyFormatChange={tester.setBodyFormat}
               onBodyChange={tester.setBody}
               onSend={tester.sendRequest}
               urlInputRef={urlInputRef}

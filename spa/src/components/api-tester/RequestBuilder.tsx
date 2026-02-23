@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import type { KeyValuePair, BodyFormat } from './useApiTester';
+import type { KeyValuePair } from './useApiTester';
 import { KeyValueEditor } from './KeyValueEditor';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
@@ -12,22 +12,21 @@ const METHOD_SELECT_COLORS: Record<string, string> = {
   DELETE: 'text-rose-600 dark:text-rose-400',
 };
 
+const METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH']);
+
 interface RequestBuilderProps {
   method: string;
   url: string;
   pathParams: KeyValuePair[];
   queryParams: KeyValuePair[];
   headers: KeyValuePair[];
-  bodyFormat: BodyFormat;
   body: string;
-  hasRequestBody: boolean;
   sending: boolean;
   onMethodChange: (method: string) => void;
   onUrlChange: (url: string) => void;
   onPathParamsChange: (params: KeyValuePair[]) => void;
   onQueryParamsChange: (params: KeyValuePair[]) => void;
   onHeadersChange: (headers: KeyValuePair[]) => void;
-  onBodyFormatChange: (format: BodyFormat) => void;
   onBodyChange: (body: string) => void;
   onSend: () => void;
   urlInputRef: React.RefObject<HTMLInputElement | null>;
@@ -41,23 +40,28 @@ export function RequestBuilder({
   pathParams,
   queryParams,
   headers,
-  bodyFormat,
   body,
-  hasRequestBody,
   sending,
   onMethodChange,
   onUrlChange,
   onPathParamsChange,
   onQueryParamsChange,
   onHeadersChange,
-  onBodyFormatChange,
   onBodyChange,
   onSend,
   urlInputRef,
 }: RequestBuilderProps) {
-  const [activeTab, setActiveTab] = useState<Tab>(hasRequestBody ? 'body' : 'params');
+  const showBody = METHODS_WITH_BODY.has(method);
+  const [activeTab, setActiveTab] = useState<Tab>(showBody ? 'body' : 'params');
   const selectRef = useRef<HTMLSelectElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
+
+  // When method changes, switch away from body tab if it's no longer available
+  useEffect(() => {
+    if (!METHODS_WITH_BODY.has(method) && activeTab === 'body') {
+      setActiveTab('params');
+    }
+  }, [method, activeTab]);
 
   // Resize select to fit the selected method text
   useEffect(() => {
@@ -70,7 +74,7 @@ export function RequestBuilder({
 
   const pathParamKeys = new Set(pathParams.map(p => p.key));
 
-  const tabs: Tab[] = hasRequestBody ? ['body', 'params', 'headers'] : ['params', 'headers'];
+  const tabs: Tab[] = showBody ? ['body', 'params', 'headers'] : ['params', 'headers'];
 
   return (
     <div className="flex flex-col h-full">
@@ -124,30 +128,18 @@ export function RequestBuilder({
       {/* Tab bar */}
       <div className="px-3 flex items-center gap-4">
         {tabs.map(tab => (
-          <div key={tab} className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`text-xs font-medium capitalize transition-colors ${
-                activeTab === tab
-                  ? 'text-primary-600 dark:text-primary-400'
-                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-              }`}
-            >
-              {tab}
-            </button>
-            {/* Inline format selector next to Body tab */}
-            {tab === 'body' && activeTab === 'body' && (
-              <select
-                value={bodyFormat}
-                onChange={e => onBodyFormatChange(e.target.value as BodyFormat)}
-                className="mb-[1px] ml-0.5 px-1 py-0.5 text-[11px] font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 outline-none focus:border-primary-400 dark:focus:border-primary-500 transition-colors"
-              >
-                <option value="json">JSON</option>
-                <option value="xml">XML</option>
-              </select>
-            )}
-          </div>
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`text-xs font-medium capitalize transition-colors ${
+              activeTab === tab
+                ? 'text-primary-600 dark:text-primary-400'
+                : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+            }`}
+          >
+            {tab}
+          </button>
         ))}
       </div>
 
