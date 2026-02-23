@@ -66,11 +66,11 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
     <div className="flex flex-col h-full">
       {/* Status bar */}
       <div className="p-3 flex items-center gap-3">
-        <span className={`text-sm font-semibold ${statusColor(response.status)}`}>
+        <span className={`text-sm font-mono font-semibold ${statusColor(response.status)}`}>
           {response.status} {response.statusText}
         </span>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400">{response.timeMs}ms</span>
-        <span className="text-[11px] text-slate-500 dark:text-slate-400">{formatSize(response.sizeBytes)}</span>
+        <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{response.timeMs}ms</span>
+        <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{formatSize(response.sizeBytes)}</span>
         {error && (
           <span className="text-[11px] text-rose-500 dark:text-rose-400 truncate">{error}</span>
         )}
