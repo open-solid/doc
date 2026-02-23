@@ -63,40 +63,42 @@ export function RequestBuilder({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Top bar: method + URL + send */}
+      {/* Top bar: method + URL + send as single input */}
       <div className="p-3">
-        <div className="flex gap-2">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md focus-within:border-primary-400 dark:focus-within:border-primary-500 transition-colors">
           <select
             value={method}
             onChange={e => onMethodChange(e.target.value)}
-            className={`shrink-0 px-2 py-1.5 text-xs font-bold uppercase bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-primary-400 dark:focus:border-primary-500 transition-colors ${METHOD_SELECT_COLORS[method] ?? 'text-slate-600'}`}
+            className={`shrink-0 px-2.5 py-1.5 text-xs font-bold uppercase bg-transparent border-none outline-none ${METHOD_SELECT_COLORS[method] ?? 'text-slate-600'}`}
           >
             {METHODS.map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
+          <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 shrink-0" />
           <input
             ref={urlInputRef}
             type="text"
             value={url}
             onChange={e => onUrlChange(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-xs font-mono bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 outline-none focus:border-primary-400 dark:focus:border-primary-500 transition-colors"
+            className="flex-1 px-3 py-1.5 text-xs font-mono bg-transparent border-none text-slate-700 dark:text-slate-300 outline-none"
           />
           <button
             type="button"
             onClick={onSend}
             disabled={sending}
-            className="shrink-0 px-4 py-1.5 text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 rounded-md transition-colors flex items-center gap-1.5"
+            className="shrink-0 p-1.5 mr-1 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 disabled:opacity-50 transition-colors"
           >
             {sending ? (
-              <>
-                <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Sending
-              </>
-            ) : 'Send'}
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
