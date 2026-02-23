@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Endpoint, OpenApiSpec } from '../../openapi';
+import { useArchData } from '../../hooks/useArchData';
 import { useApiTester } from './useApiTester';
 import { RequestHistory } from './RequestHistory';
 import { RequestBuilder } from './RequestBuilder';
@@ -54,6 +55,7 @@ function ResizeHandle({ onDrag }: ResizeHandleProps) {
 }
 
 function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps) {
+  const { data } = useArchData();
   const tester = useApiTester(endpoint, spec);
   const urlInputRef = useRef<HTMLInputElement | null>(null);
   const backdropRef = useRef<HTMLDivElement | null>(null);
@@ -151,8 +153,8 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
         {/* Header */}
         <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-200">API Tester</h2>
-            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{endpoint.method.toUpperCase()} {endpoint.path}</span>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-200">{data?.meta.project ?? 'API Tester'}</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{data?.meta.company ?? ''}</span>
 
             {/* History toggle for small screens */}
             <button

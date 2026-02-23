@@ -52,13 +52,26 @@ function makePair(key: string, value: string, enabled = true): KeyValuePair {
   return { id: uid(), key, value, enabled };
 }
 
-function detectContentType(endpoint: Endpoint): string | null {
+function detectRequestContentType(endpoint: Endpoint): string | null {
   const content = endpoint.requestBody?.content;
   if (!content) return null;
   if (content['application/json']) return 'application/json';
   if (content['application/ld+json']) return 'application/ld+json';
   if (content['application/merge-patch+json']) return 'application/merge-patch+json';
   return null;
+}
+
+function detectResponseContentType(endpoint: Endpoint): string {
+  // Look at the first 2xx response, then fall back to any response
+  const codes = Object.keys(endpoint.responses);
+  const successCode = codes.find(c => c.startsWith('2')) ?? codes[0];
+  const response = successCode ? endpoint.responses[successCode] : undefined;
+  const content = response?.content;
+  if (content) {
+    const mediaType = Object.keys(content)[0];
+    if (mediaType) return mediaType;
+  }
+  return 'application/json';
 }
 
 function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiSpec): RequestState {
@@ -79,11 +92,11 @@ function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
     }
   }
 
-  const contentType = detectContentType(endpoint);
+  const contentType = detectRequestContentType(endpoint);
   if (contentType) {
     headers.unshift(makePair('Content-Type', contentType, true));
   }
-  headers.push(makePair('Accept', 'application/json', true));
+  headers.push(makePair('Accept', contentType ?? detectResponseContentType(endpoint), true));
 
   let body = '';
   const bodyContent = endpoint.requestBody?.content;

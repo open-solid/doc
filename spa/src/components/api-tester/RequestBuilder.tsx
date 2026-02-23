@@ -102,16 +102,16 @@ export function RequestBuilder({
       </div>
 
       {/* Tab bar */}
-      <div className="px-3 pt-3 flex items-center gap-4">
+      <div className="px-3 flex items-center gap-4">
         {tabs.map(tab => (
           <div key={tab} className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`pb-2 text-xs font-medium capitalize border-b-2 transition-colors ${
+              className={`text-xs font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                  ? 'text-primary-600 dark:text-primary-400'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
               }`}
             >
               {tab}
@@ -152,7 +152,6 @@ export function RequestBuilder({
               </div>
             )}
             <div>
-              <h5 className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Query Parameters</h5>
               <KeyValueEditor pairs={queryParams} onChange={onQueryParamsChange} />
             </div>
           </>
@@ -160,7 +159,6 @@ export function RequestBuilder({
 
         {activeTab === 'headers' && (
           <div>
-            <h5 className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Request Headers</h5>
             <KeyValueEditor pairs={headers} onChange={onHeadersChange} />
           </div>
         )}

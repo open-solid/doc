@@ -127,7 +127,6 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
             )}
             {response.requestSnapshot.body && (
               <div>
-                <h5 className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Body</h5>
                 <CodeBlock code={response.requestSnapshot.body} language="json" />
               </div>
             )}
