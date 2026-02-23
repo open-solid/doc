@@ -226,13 +226,15 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
           <ResizeHandle onDrag={handleResize1} />
 
           {/* Response viewer */}
-          <div style={responseStyle} className="min-h-0 min-w-0 overflow-hidden">
-            <ResponseViewer
-              response={tester.response}
-              error={tester.error}
-              sending={tester.sending}
-              formatSize={tester.formatSize}
-            />
+          <div style={responseStyle} className="min-h-0 min-w-0 overflow-hidden p-3">
+            <div className="h-full bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden">
+              <ResponseViewer
+                response={tester.response}
+                error={tester.error}
+                sending={tester.sending}
+                formatSize={tester.formatSize}
+              />
+            </div>
           </div>
         </div>
       </div>

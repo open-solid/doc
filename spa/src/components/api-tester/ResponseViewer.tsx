@@ -77,7 +77,7 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
       </div>
 
       {/* Tab bar */}
-      <div className="px-3 flex gap-4">
+      <div className="px-3 pb-3 flex gap-4">
         {(['response', 'request', 'headers', 'cookies'] as const).map(tab => (
           <button
             key={tab}
@@ -95,7 +95,7 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-3 pt-0">
         {activeTab === 'response' && (
           response.body ? (
             <CodeBlock code={response.body} language={codeBlockLang(response.bodyFormat)} />
