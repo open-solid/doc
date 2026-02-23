@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Highlight, themes, type PrismTheme } from 'prism-react-renderer';
+import { Highlight, type PrismTheme } from 'prism-react-renderer';
 import { useTheme } from '../hooks/useTheme';
 
 // Register extra Prism grammars — static imports run in order, and
@@ -10,17 +10,43 @@ import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-markup-templating';
 import 'prismjs/components/prism-php';
 
-function extendTheme(base: PrismTheme, extra: PrismTheme['styles']): PrismTheme {
-  return { ...base, styles: [...base.styles, ...extra] };
-}
+const lightTheme: PrismTheme = {
+  plain: { color: 'rgb(51 65 85)' },           // slate-700
+  styles: [
+    { types: ['property'], style: { color: 'rgb(67 56 202)' } },       // primary-700
+    { types: ['string', 'attr-value'], style: { color: 'rgb(5 150 105)' } }, // emerald-600
+    { types: ['number'], style: { color: 'rgb(217 119 6)' } },         // amber-600
+    { types: ['boolean'], style: { color: 'rgb(79 70 229)' } },        // primary-600
+    { types: ['null'], style: { color: 'rgb(148 163 184)' } },         // slate-400
+    { types: ['punctuation', 'operator'], style: { color: 'rgb(100 116 139)' } }, // slate-500
+    { types: ['keyword'], style: { color: 'rgb(79 70 229)' } },        // primary-600
+    { types: ['function'], style: { color: 'rgb(67 56 202)' } },       // primary-700
+    { types: ['comment'], style: { color: 'rgb(148 163 184)', fontStyle: 'italic' } }, // slate-400
+    { types: ['tag', 'attr-name'], style: { color: 'rgb(67 56 202)' } }, // primary-700
+    { types: ['parameter'], style: { color: 'rgb(217 119 6)', fontStyle: 'italic' } }, // amber-600
+    { types: ['variable'], style: { color: 'rgb(5 150 105)' } },       // emerald-600
+    { types: ['builtin', 'class-name'], style: { color: 'rgb(217 119 6)' } }, // amber-600
+  ],
+};
 
-const darkTheme = extendTheme(themes.nightOwl, [
-  { types: ['parameter'], style: { color: '#ecc48d', fontStyle: 'italic' } },
-]);
-
-const lightTheme = extendTheme(themes.github, [
-  { types: ['parameter'], style: { color: '#b08040', fontStyle: 'italic' } },
-]);
+const darkTheme: PrismTheme = {
+  plain: { color: 'rgb(203 213 225)' },          // slate-300
+  styles: [
+    { types: ['property'], style: { color: 'rgb(165 180 252)' } },     // primary-300
+    { types: ['string', 'attr-value'], style: { color: 'rgb(52 211 153)' } }, // emerald-400
+    { types: ['number'], style: { color: 'rgb(251 191 36)' } },        // amber-400
+    { types: ['boolean'], style: { color: 'rgb(129 140 248)' } },      // primary-400
+    { types: ['null'], style: { color: 'rgb(100 116 139)' } },         // slate-500
+    { types: ['punctuation', 'operator'], style: { color: 'rgb(148 163 184)' } }, // slate-400
+    { types: ['keyword'], style: { color: 'rgb(129 140 248)' } },      // primary-400
+    { types: ['function'], style: { color: 'rgb(165 180 252)' } },     // primary-300
+    { types: ['comment'], style: { color: 'rgb(100 116 139)', fontStyle: 'italic' } }, // slate-500
+    { types: ['tag', 'attr-name'], style: { color: 'rgb(165 180 252)' } }, // primary-300
+    { types: ['parameter'], style: { color: 'rgb(251 191 36)', fontStyle: 'italic' } }, // amber-400
+    { types: ['variable'], style: { color: 'rgb(52 211 153)' } },      // emerald-400
+    { types: ['builtin', 'class-name'], style: { color: 'rgb(251 191 36)' } }, // amber-400
+  ],
+};
 
 interface CodeBlockProps {
   code: string;
@@ -55,7 +81,7 @@ export function CodeBlock({ code, language, bare }: CodeBlockProps) {
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
-          <pre className={`${bare ? 'p-0' : 'p-4'} overflow-x-auto text-sm leading-relaxed font-mono`}>
+          <pre className={`${bare ? 'p-0' : 'p-4'} overflow-x-auto text-xs leading-relaxed font-mono`}>
             <code>
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>
