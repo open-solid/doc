@@ -25,9 +25,10 @@ const lightTheme = extendTheme(themes.github, [
 interface CodeBlockProps {
   code: string;
   language: 'json' | 'bash' | 'php' | 'xml';
+  bare?: boolean;
 }
 
-export function CodeBlock({ code, language }: CodeBlockProps) {
+export function CodeBlock({ code, language, bare }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const { isDark } = useTheme();
 
@@ -44,7 +45,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     <Highlight theme={theme} code={code} language={language}>
       {({ style, tokens, getLineProps, getTokenProps }) => (
         <div
-          className="relative group rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50"
+          className={`relative group ${bare ? '' : 'rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50'}`}
           style={{ ...style, background: undefined }}
         >
           <button
@@ -54,7 +55,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
-          <pre className="p-4 overflow-x-auto text-sm leading-relaxed font-mono">
+          <pre className={`${bare ? 'p-0' : 'p-4'} overflow-x-auto text-sm leading-relaxed font-mono`}>
             <code>
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>

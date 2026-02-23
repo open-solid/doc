@@ -100,7 +100,7 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
       <div className="flex-1 overflow-y-auto p-3 pt-0">
         {activeTab === 'response' && (
           response.body ? (
-            <CodeBlock code={response.body} language={codeBlockLang(response.bodyFormat)} />
+            <CodeBlock code={response.body} language={codeBlockLang(response.bodyFormat)} bare />
           ) : (
             <p className="text-sm italic text-slate-400 dark:text-slate-500">No response body</p>
           )
@@ -129,7 +129,7 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
             )}
             {response.requestSnapshot.body && (
               <div>
-                <CodeBlock code={response.requestSnapshot.body} language="json" />
+                <CodeBlock code={response.requestSnapshot.body} language="json" bare />
               </div>
             )}
           </div>
