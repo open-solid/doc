@@ -24,7 +24,7 @@ const lightTheme = extendTheme(themes.github, [
 
 interface CodeBlockProps {
   code: string;
-  language: 'json' | 'bash' | 'php';
+  language: 'json' | 'bash' | 'php' | 'xml';
 }
 
 export function CodeBlock({ code, language }: CodeBlockProps) {

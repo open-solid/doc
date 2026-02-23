@@ -3,6 +3,7 @@ import type { Endpoint, OpenApiSpec, SchemaObject } from '../../openapi';
 import { generateCurl } from '../../utils/curl';
 import { generateExampleJson, resolveSchema } from '../../utils/schema';
 import { CodeBlock } from '../CodeBlock';
+import { ApiTesterModal } from '../api-tester/ApiTesterModal';
 
 interface EndpointCardProps {
   endpoint: Endpoint;
@@ -395,6 +396,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
   const defaultCode = responses.find(r => r.code.startsWith('2'))?.code ?? responses[0]?.code ?? '';
   const [activeResponseCode, setActiveResponseCode] = useState(defaultCode);
   const activeResponse = responses.find(r => r.code === activeResponseCode) ?? responses[0];
+  const [showTester, setShowTester] = useState(false);
 
   const hasReturns = responses.some(r => r.attributes.length > 0);
 
@@ -468,7 +470,16 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Request</h4>
-              <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowTester(true)}
+                  className="text-xs font-medium px-2 py-0.5 rounded bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900/60 transition-colors"
+                >
+                  Try
+                </button>
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
+              </div>
             </div>
             <div className="flex items-center gap-2 mb-3">
               <span className={`text-[11px] font-bold uppercase ${METHOD_TEXT_COLORS[endpoint.method] ?? 'text-slate-500'}`}>
@@ -496,6 +507,9 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
           </div>
         </div>
       </div>
+      {showTester && (
+        <ApiTesterModal endpoint={endpoint} spec={spec} onClose={() => setShowTester(false)} />
+      )}
     </article>
   );
 }
