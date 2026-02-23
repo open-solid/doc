@@ -140,6 +140,19 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
+const STATUS_TEXTS: Record<number, string> = {
+  200: 'OK', 201: 'Created', 202: 'Accepted', 204: 'No Content',
+  301: 'Moved Permanently', 302: 'Found', 304: 'Not Modified',
+  400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden',
+  404: 'Not Found', 405: 'Method Not Allowed', 409: 'Conflict',
+  415: 'Unsupported Media Type', 422: 'Unprocessable Entity', 429: 'Too Many Requests',
+  500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable',
+};
+
+function resolveStatusText(status: number, statusText: string): string {
+  return statusText || (STATUS_TEXTS[status] ?? '');
+}
+
 function detectBodyFormat(contentType: string): string {
   if (contentType.includes('json')) return 'json';
   if (contentType.includes('xml') || contentType.includes('html')) return 'xml';
@@ -258,7 +271,7 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
 
       const responseState: ResponseState = {
         status: res.status,
-        statusText: res.statusText,
+        statusText: resolveStatusText(res.status, res.statusText),
         timeMs: elapsed,
         sizeBytes: new Blob([bodyText]).size,
         headers: resHeaders,

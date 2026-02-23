@@ -2,11 +2,11 @@ import { useState } from 'react';
 import type { ResponseState } from './useApiTester';
 import { CodeBlock } from '../CodeBlock';
 
-function statusBadgeColor(status: number): string {
-  if (status === 0) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
-  if (status < 300) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
-  if (status < 500) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
-  return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
+function statusColor(status: number): string {
+  if (status === 0) return 'text-rose-600 dark:text-rose-400';
+  if (status < 300) return 'text-emerald-600 dark:text-emerald-400';
+  if (status < 500) return 'text-amber-600 dark:text-amber-400';
+  return 'text-rose-600 dark:text-rose-400';
 }
 
 function codeBlockLang(format: string): 'json' | 'xml' | 'bash' {
@@ -66,7 +66,7 @@ export function ResponseViewer({ response, error, sending, formatSize }: Respons
     <div className="flex flex-col h-full">
       {/* Status bar */}
       <div className="p-3 flex items-center gap-3">
-        <span className={`text-xs font-bold px-2 py-0.5 rounded ${statusBadgeColor(response.status)}`}>
+        <span className={`text-sm font-semibold ${statusColor(response.status)}`}>
           {response.status} {response.statusText}
         </span>
         <span className="text-[11px] text-slate-500 dark:text-slate-400">{response.timeMs}ms</span>
