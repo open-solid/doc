@@ -9,15 +9,12 @@ export interface KeyValuePair {
   enabled: boolean;
 }
 
-export type BodyFormat = 'json' | 'xml';
-
 export interface RequestState {
   method: string;
   url: string;
   pathParams: KeyValuePair[];
   queryParams: KeyValuePair[];
   headers: KeyValuePair[];
-  bodyFormat: BodyFormat;
   body: string;
 }
 
@@ -114,7 +111,6 @@ function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
     pathParams,
     queryParams,
     headers,
-    bodyFormat: 'json',
     body,
   };
 }
@@ -174,7 +170,6 @@ export interface UseApiTesterReturn {
   setPathParams: (params: KeyValuePair[]) => void;
   setQueryParams: (params: KeyValuePair[]) => void;
   setHeaders: (headers: KeyValuePair[]) => void;
-  setBodyFormat: (format: BodyFormat) => void;
   setBody: (body: string) => void;
   setHistorySearch: (search: string) => void;
   sendRequest: () => Promise<void>;
@@ -212,10 +207,6 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
 
   const setHeaders = useCallback((headers: KeyValuePair[]) => {
     setRequest(prev => ({ ...prev, headers }));
-  }, []);
-
-  const setBodyFormat = useCallback((bodyFormat: BodyFormat) => {
-    setRequest(prev => ({ ...prev, bodyFormat }));
   }, []);
 
   const setBody = useCallback((body: string) => {
@@ -346,7 +337,6 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
     setPathParams,
     setQueryParams,
     setHeaders,
-    setBodyFormat,
     setBody,
     setHistorySearch,
     sendRequest,

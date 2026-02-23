@@ -15,11 +15,6 @@ function statusColor(status: number): string {
   return 'text-rose-600 dark:text-rose-400';
 }
 
-function formatTime(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-
 interface RequestHistoryProps {
   history: HistoryEntry[];
   search: string;
@@ -75,14 +70,11 @@ export function RequestHistory({ history, search, onSearchChange, onSelect, acti
                   {entry.method}
                 </span>
                 <span className="flex-1 text-xs font-mono text-slate-600 dark:text-slate-400 truncate">{entry.path}</span>
-                <div className="shrink-0 flex flex-col items-end gap-0.5">
-                  {entry.response && (
-                    <span className={`text-[10px] font-semibold ${statusColor(entry.response.status)}`}>
-                      {entry.response.status || 'ERR'}
-                    </span>
-                  )}
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500">{formatTime(entry.timestamp)}</span>
-                </div>
+                {entry.response && (
+                  <span className={`shrink-0 text-xs font-semibold ${statusColor(entry.response.status)}`}>
+                    {entry.response.status || 'ERR'}
+                  </span>
+                )}
               </button>
             ))}
           </div>
