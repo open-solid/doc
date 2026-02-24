@@ -1,4 +1,83 @@
-import type { SchemaObject, OpenApiSpec } from '../openapi';
+import type { SchemaObject, OpenApiSpec, HttpMethod } from '../openapi';
+
+export interface NamedExample {
+  key: string;
+  summary?: string;
+  value: string;
+}
+
+export interface CompiledPattern {
+  path: string;
+  regex: RegExp;
+}
+
+export function compilePathPatterns(paths: string[]): CompiledPattern[] {
+  return paths.map(path => {
+    const regexStr = path.replace(/\{[^}]+\}/g, '[^/]+');
+    return { path, regex: new RegExp(`^${regexStr}$`) };
+  });
+}
+
+export function matchUrlToPath(url: string, baseUrl: string, patterns: CompiledPattern[]): string | null {
+  let pathname: string;
+  try {
+    pathname = new URL(url).pathname;
+  } catch {
+    return null;
+  }
+
+  // Strip base path prefix
+  if (baseUrl && baseUrl !== '/') {
+    try {
+      const basePath = new URL(baseUrl).pathname.replace(/\/$/, '');
+      if (basePath && pathname.startsWith(basePath)) {
+        pathname = pathname.slice(basePath.length);
+      }
+    } catch {
+      // baseUrl might be a relative path like "/api/v1"
+      const basePath = baseUrl.replace(/\/$/, '');
+      if (basePath && pathname.startsWith(basePath)) {
+        pathname = pathname.slice(basePath.length);
+      }
+    }
+  }
+
+  if (!pathname.startsWith('/')) {
+    pathname = '/' + pathname;
+  }
+
+  for (const { path, regex } of patterns) {
+    if (regex.test(pathname)) {
+      return path;
+    }
+  }
+  return null;
+}
+
+const JSON_MEDIA_TYPES = [
+  'application/json',
+  'application/ld+json',
+  'application/merge-patch+json',
+];
+
+export function getRequestBodyExamples(spec: OpenApiSpec, path: string, method: string): NamedExample[] {
+  const operation = spec.paths[path]?.[method.toLowerCase() as HttpMethod];
+  if (!operation?.requestBody?.content) return [];
+
+  const content = operation.requestBody.content;
+  for (const mediaType of JSON_MEDIA_TYPES) {
+    const entry = content[mediaType];
+    if (entry?.examples) {
+      return Object.entries(entry.examples).map(([key, example]) => ({
+        key,
+        summary: example.summary,
+        value: JSON.stringify(example.value, null, 2),
+      }));
+    }
+  }
+
+  return [];
+}
 
 export function resolveSchema(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
   if (schema.$ref) {

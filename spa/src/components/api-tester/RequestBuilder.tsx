@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import type { KeyValuePair } from './useApiTester';
+import type { NamedExample } from '../../utils/schema';
 import { KeyValueEditor } from './KeyValueEditor';
 import { JsonEditor } from './JsonEditor';
+import { ExampleSelector } from './ExampleSelector';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -31,6 +33,9 @@ interface RequestBuilderProps {
   onBodyChange: (body: string) => void;
   onSend: () => void;
   urlInputRef: React.RefObject<HTMLInputElement | null>;
+  examples: NamedExample[];
+  selectedExampleKey: string | null;
+  onExampleSelect: (example: NamedExample) => void;
 }
 
 type Tab = 'body' | 'params' | 'headers';
@@ -51,6 +56,9 @@ export function RequestBuilder({
   onBodyChange,
   onSend,
   urlInputRef,
+  examples,
+  selectedExampleKey,
+  onExampleSelect,
 }: RequestBuilderProps) {
   const showBody = METHODS_WITH_BODY.has(method);
   const [activeTab, setActiveTab] = useState<Tab>(showBody ? 'body' : 'params');
@@ -147,7 +155,16 @@ export function RequestBuilder({
       {/* Tab content */}
       <div className={`flex-1 min-h-0 p-3 ${activeTab === 'body' ? '' : 'overflow-y-auto space-y-4'}`}>
         {activeTab === 'body' && (
-          <JsonEditor value={body} onChange={onBodyChange} />
+          <div className="flex flex-col h-full gap-2">
+            {examples.length > 0 && (
+              <div className="shrink-0">
+                <ExampleSelector examples={examples} selectedKey={selectedExampleKey} onSelect={onExampleSelect} />
+              </div>
+            )}
+            <div className="flex-1 min-h-0">
+              <JsonEditor value={body} onChange={onBodyChange} />
+            </div>
+          </div>
         )}
 
         {activeTab === 'params' && (

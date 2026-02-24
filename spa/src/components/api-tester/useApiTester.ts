@@ -1,6 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Endpoint, OpenApiSpec } from '../../openapi';
-import { generateExampleJson, resolveSchema } from '../../utils/schema';
+import { generateExampleJson, resolveSchema, compilePathPatterns, matchUrlToPath, getRequestBodyExamples } from '../../utils/schema';
+import type { NamedExample } from '../../utils/schema';
 
 const METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH']);
 
@@ -190,6 +191,9 @@ export interface UseApiTesterReturn {
   sendRequest: () => Promise<void>;
   selectHistoryEntry: (id: string) => void;
   formatSize: (bytes: number) => string;
+  examples: NamedExample[];
+  selectedExampleKey: string | null;
+  selectExample: (example: NamedExample) => void;
 }
 
 export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTesterReturn {
@@ -330,6 +334,28 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
     }
   }, [request, endpoint.path]);
 
+  // Examples support
+  const compiledPatterns = useMemo(() => compilePathPatterns(Object.keys(spec.paths)), [spec]);
+  const [selectedExampleKey, setSelectedExampleKey] = useState<string | null>(null);
+
+  const examples = useMemo(() => {
+    const matchedPath = matchUrlToPath(request.url, baseUrl, compiledPatterns);
+    if (!matchedPath) return [];
+    return getRequestBodyExamples(spec, matchedPath, request.method);
+  }, [request.url, request.method, baseUrl, compiledPatterns, spec]);
+
+  // Clear selection when examples change and the selected key is no longer available
+  useEffect(() => {
+    if (selectedExampleKey && !examples.some(e => e.key === selectedExampleKey)) {
+      setSelectedExampleKey(null);
+    }
+  }, [examples, selectedExampleKey]);
+
+  const selectExample = useCallback((example: NamedExample) => {
+    setSelectedExampleKey(example.key);
+    setBody(example.value);
+  }, [setBody]);
+
   const selectHistoryEntry = useCallback((id: string) => {
     const entry = history.find(h => h.id === id);
     if (!entry) return;
@@ -357,5 +383,8 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
     sendRequest,
     selectHistoryEntry,
     formatSize,
+    examples,
+    selectedExampleKey,
+    selectExample,
   };
 }

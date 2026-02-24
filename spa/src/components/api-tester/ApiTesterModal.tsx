@@ -219,6 +219,9 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
               onBodyChange={tester.setBody}
               onSend={tester.sendRequest}
               urlInputRef={urlInputRef}
+              examples={tester.examples}
+              selectedExampleKey={tester.selectedExampleKey}
+              onExampleSelect={tester.selectExample}
             />
           </div>
 

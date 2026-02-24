@@ -37,8 +37,15 @@ export interface RequestBody {
   content: Record<string, MediaType>;
 }
 
+export interface ExampleObject {
+  summary?: string;
+  description?: string;
+  value?: unknown;
+}
+
 export interface MediaType {
   schema?: SchemaObject;
+  examples?: Record<string, ExampleObject>;
 }
 
 export interface ResponseObject {
