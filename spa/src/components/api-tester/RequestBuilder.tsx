@@ -6,7 +6,6 @@ import type { SchemaObject, OpenApiSpec } from '../../openapi';
 import type { ValidationResult } from '../../utils/jsonSchemaValidation';
 import { KeyValueEditor } from './KeyValueEditor';
 import { JsonEditor } from './JsonEditor';
-import { ExampleSelector } from './ExampleSelector';
 import { ValidationStatusBar } from './ValidationStatusBar';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
@@ -170,27 +169,26 @@ export function RequestBuilder({
       {/* Tab content */}
       <div className={`flex-1 min-h-0 p-3 ${activeTab === 'body' ? '' : 'overflow-y-auto space-y-4'}`}>
         {activeTab === 'body' && (
-          <div className="flex flex-col h-full gap-2">
-            {examples.length > 0 && (
-              <div className="shrink-0">
-                <ExampleSelector examples={examples} selectedKey={selectedExampleKey} onSelect={onExampleSelect} />
-              </div>
-            )}
-            <div className="flex-1 min-h-0 flex flex-col">
-              <div className="flex-1 min-h-0">
-                <JsonEditor
-                  value={body}
-                  onChange={onBodyChange}
-                  schema={bodySchema}
-                  spec={spec}
-                  onValidation={setValidation}
-                  editorViewRef={editorViewRef}
-                />
-              </div>
-              {bodySchema && validation && (
-                <ValidationStatusBar validation={validation} editorView={editorViewRef.current} />
-              )}
+          <div className="flex flex-col h-full">
+            <div className="flex-1 min-h-0">
+              <JsonEditor
+                value={body}
+                onChange={onBodyChange}
+                schema={bodySchema}
+                spec={spec}
+                onValidation={setValidation}
+                editorViewRef={editorViewRef}
+              />
             </div>
+            {(examples.length > 0 || (bodySchema && validation)) && (
+              <ValidationStatusBar
+                validation={bodySchema ? validation : null}
+                editorView={editorViewRef.current}
+                examples={examples}
+                selectedExampleKey={selectedExampleKey}
+                onExampleSelect={onExampleSelect}
+              />
+            )}
           </div>
         )}
 

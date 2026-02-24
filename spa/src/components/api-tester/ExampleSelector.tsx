@@ -32,25 +32,21 @@ export function ExampleSelector({ examples, selectedKey, onSelect }: ExampleSele
     }
   }, [open, handleClickOutside, handleKeyDown]);
 
-  const selected = examples.find(e => e.key === selectedKey);
-
   return (
     <div ref={containerRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-mono border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 rounded-md hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+        className="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer"
       >
-        <span className={selected ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}>
-          {selected ? selected.key : 'Select example...'}
-        </span>
-        <svg className={`w-3 h-3 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <span className="font-medium">Examples</span>
+        <svg className={`w-2.5 h-2.5 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg">
+        <div className="absolute z-10 bottom-full mb-1 right-0 min-w-48 max-h-48 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg">
           {examples.map(example => (
             <button
               key={example.key}
