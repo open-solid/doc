@@ -5,6 +5,7 @@ import type { NamedExample } from '../../utils/schema';
 import type { SchemaObject, OpenApiSpec } from '../../openapi';
 import type { ValidationResult } from '../../utils/jsonSchemaValidation';
 import { KeyValueEditor } from './KeyValueEditor';
+import { PathParamEditor } from './PathParamEditor';
 import { JsonEditor } from './JsonEditor';
 import { ValidationStatusBar } from './ValidationStatusBar';
 
@@ -43,7 +44,7 @@ interface RequestBuilderProps {
   spec: OpenApiSpec;
 }
 
-type Tab = 'body' | 'params' | 'headers';
+type Tab = 'body' | 'path' | 'params' | 'headers';
 
 export function RequestBuilder({
   method,
@@ -68,7 +69,9 @@ export function RequestBuilder({
   spec,
 }: RequestBuilderProps) {
   const showBody = METHODS_WITH_BODY.has(method);
-  const [activeTab, setActiveTab] = useState<Tab>(showBody ? 'body' : 'params');
+  const hasPathParams = pathParams.length > 0;
+  const defaultTab: Tab = showBody ? 'body' : hasPathParams ? 'path' : 'params';
+  const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
   const selectRef = useRef<HTMLSelectElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
@@ -77,9 +80,9 @@ export function RequestBuilder({
   // When method changes, switch away from body tab if it's no longer available
   useEffect(() => {
     if (!METHODS_WITH_BODY.has(method) && activeTab === 'body') {
-      setActiveTab('params');
+      setActiveTab(hasPathParams ? 'path' : 'params');
     }
-  }, [method, activeTab]);
+  }, [method, activeTab, hasPathParams]);
 
   // Resize select to fit the selected method text
   useEffect(() => {
@@ -95,9 +98,12 @@ export function RequestBuilder({
     setValidation(null);
   }, [bodySchema]);
 
-  const pathParamKeys = new Set(pathParams.map(p => p.key));
-
-  const tabs: Tab[] = showBody ? ['body', 'params', 'headers'] : ['params', 'headers'];
+  const tabs: Tab[] = [
+    ...(showBody ? ['body'] as Tab[] : []),
+    ...(hasPathParams ? ['path'] as Tab[] : []),
+    'params',
+    'headers',
+  ];
 
   return (
     <div className="flex flex-col h-full">
@@ -192,18 +198,16 @@ export function RequestBuilder({
           </div>
         )}
 
+        {activeTab === 'path' && (
+          <div>
+            <PathParamEditor pairs={pathParams} onChange={onPathParamsChange} />
+          </div>
+        )}
+
         {activeTab === 'params' && (
-          <>
-            {pathParams.length > 0 && (
-              <div>
-                <h5 className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Path Parameters</h5>
-                <KeyValueEditor pairs={pathParams} onChange={onPathParamsChange} readOnlyKeys={pathParamKeys} />
-              </div>
-            )}
-            <div>
-              <KeyValueEditor pairs={queryParams} onChange={onQueryParamsChange} />
-            </div>
-          </>
+          <div>
+            <KeyValueEditor pairs={queryParams} onChange={onQueryParamsChange} />
+          </div>
         )}
 
         {activeTab === 'headers' && (

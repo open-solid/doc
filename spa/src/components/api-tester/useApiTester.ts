@@ -238,8 +238,17 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
   }, []);
 
   const setPathParams = useCallback((pathParams: KeyValuePair[]) => {
-    setRequest(prev => ({ ...prev, pathParams }));
-  }, []);
+    setRequest(prev => {
+      const origin = baseUrl && baseUrl !== '/' ? baseUrl.replace(/\/$/, '') : window.location.origin;
+      let url = `${origin}${endpoint.path}`;
+      for (const p of pathParams) {
+        if (p.value) {
+          url = url.replace(`{${p.key}}`, p.value);
+        }
+      }
+      return { ...prev, pathParams, url };
+    });
+  }, [baseUrl, endpoint.path]);
 
   const setQueryParams = useCallback((queryParams: KeyValuePair[]) => {
     setRequest(prev => ({ ...prev, queryParams }));
