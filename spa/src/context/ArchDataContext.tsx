@@ -42,7 +42,7 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       const res = await fetch(config.archJsonUpdateUrl, { method: 'POST' });
       const result = await res.json();
       if (result.success) {
-        setToastMessage({ text: 'documentation data updated successfully!', success: true });
+        setToastMessage({ text: 'Documentation data updated successfully!', success: true });
         await fetchData();
       } else {
         setToastMessage({ text: 'Failed to update documentation data.', success: false });
