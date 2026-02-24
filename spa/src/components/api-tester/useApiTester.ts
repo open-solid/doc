@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import type { Endpoint, OpenApiSpec } from '../../openapi';
+import type { Endpoint, HttpMethod, OpenApiSpec } from '../../openapi';
 import { generateExampleJson, resolveSchema, compilePathPatterns, matchUrlToPath, getRequestBodyExamples, getRequestBodySchema } from '../../utils/schema';
 import type { NamedExample } from '../../utils/schema';
 import type { SchemaObject } from '../../openapi';
@@ -209,10 +209,29 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
   const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const compiledPatterns = useMemo(() => compilePathPatterns(Object.keys(spec.paths)), [spec]);
 
   const setMethod = useCallback((method: string) => {
-    setRequest(prev => ({ ...prev, method }));
-  }, []);
+    setRequest(prev => {
+      const updated = { ...prev, method };
+
+      // When switching to a body method, ensure Content-Type header is present
+      if (METHODS_WITH_BODY.has(method)) {
+        const hasContentType = prev.headers.some(h => h.key.toLowerCase() === 'content-type');
+        if (!hasContentType) {
+          // Look up the operation for the target method in the spec
+          const matchedPath = matchUrlToPath(prev.url, baseUrl, compiledPatterns);
+          const operation = matchedPath ? spec.paths[matchedPath]?.[method.toLowerCase() as HttpMethod] : null;
+          const contentType = operation?.requestBody
+            ? detectRequestContentType({ requestBody: operation.requestBody } as Endpoint)
+            : null;
+          updated.headers = [makePair('Content-Type', contentType ?? 'application/json', true), ...prev.headers];
+        }
+      }
+
+      return updated;
+    });
+  }, [baseUrl, compiledPatterns, spec]);
 
   const setUrl = useCallback((url: string) => {
     setRequest(prev => ({ ...prev, url }));
@@ -337,7 +356,6 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
   }, [request, endpoint.path]);
 
   // Examples support
-  const compiledPatterns = useMemo(() => compilePathPatterns(Object.keys(spec.paths)), [spec]);
   const [selectedExampleKey, setSelectedExampleKey] = useState<string | null>(null);
 
   const examples = useMemo(() => {
