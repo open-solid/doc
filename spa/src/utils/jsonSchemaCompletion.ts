@@ -308,7 +308,7 @@ function getJsonPathAtCursor(
 /**
  * Walks up the tree to find the nearest Object ancestor.
  */
-function findParentObject(node: SyntaxNode): SyntaxNode | null {
+export function findParentObject(node: SyntaxNode): SyntaxNode | null {
   let current: SyntaxNode | null = node.parent;
   while (current) {
     if (current.name === 'Object') return current;
@@ -321,7 +321,7 @@ function findParentObject(node: SyntaxNode): SyntaxNode | null {
  * Builds the JSON path from root to the given Object node.
  * Each segment is a property name that leads from the root object down.
  */
-function buildJsonPath(state: EditorState, objectNode: SyntaxNode | null): string[] {
+export function buildJsonPath(state: EditorState, objectNode: SyntaxNode | null): string[] {
   const segments: string[] = [];
   let current = objectNode;
 
@@ -348,7 +348,7 @@ function buildJsonPath(state: EditorState, objectNode: SyntaxNode | null): strin
  * Navigates the schema following JSON path segments, resolving $ref and
  * merging allOf/oneOf/anyOf at each step.
  */
-function getSchemaAtPath(
+export function getSchemaAtPath(
   rootSchema: SchemaObject,
   spec: OpenApiSpec,
   path: string[],
@@ -367,7 +367,7 @@ function getSchemaAtPath(
 /**
  * Merges allOf schemas and collects oneOf/anyOf variant properties into a single schema.
  */
-function mergeComposite(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
+export function mergeComposite(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
   const resolved = resolveSchema(schema, spec);
 
   if (resolved.allOf) {
@@ -418,7 +418,7 @@ function mergeComposite(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
 /**
  * Collects already-used property keys in the given Object node.
  */
-function collectExistingKeys(state: EditorState, objectNode: SyntaxNode): Set<string> {
+export function collectExistingKeys(state: EditorState, objectNode: SyntaxNode): Set<string> {
   const keys = new Set<string>();
   let child = objectNode.firstChild;
 

@@ -478,7 +478,6 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
                 >
                   Try
                 </button>
-                <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">cURL</span>
               </div>
             </div>
             <div className="flex items-center gap-2 mb-3">

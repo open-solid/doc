@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
+import type { EditorView } from '@codemirror/view';
 import type { KeyValuePair } from './useApiTester';
 import type { NamedExample } from '../../utils/schema';
 import type { SchemaObject, OpenApiSpec } from '../../openapi';
+import type { ValidationResult } from '../../utils/jsonSchemaValidation';
 import { KeyValueEditor } from './KeyValueEditor';
 import { JsonEditor } from './JsonEditor';
 import { ExampleSelector } from './ExampleSelector';
+import { ValidationStatusBar } from './ValidationStatusBar';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -69,6 +72,8 @@ export function RequestBuilder({
   const [activeTab, setActiveTab] = useState<Tab>(showBody ? 'body' : 'params');
   const selectRef = useRef<HTMLSelectElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
+  const editorViewRef = useRef<EditorView | null>(null);
 
   // When method changes, switch away from body tab if it's no longer available
   useEffect(() => {
@@ -85,6 +90,11 @@ export function RequestBuilder({
       selectRef.current.style.width = `${measureRef.current.offsetWidth + padding}px`;
     }
   }, [method]);
+
+  // Reset validation when schema changes
+  useEffect(() => {
+    setValidation(null);
+  }, [bodySchema]);
 
   const pathParamKeys = new Set(pathParams.map(p => p.key));
 
@@ -166,8 +176,20 @@ export function RequestBuilder({
                 <ExampleSelector examples={examples} selectedKey={selectedExampleKey} onSelect={onExampleSelect} />
               </div>
             )}
-            <div className="flex-1 min-h-0">
-              <JsonEditor value={body} onChange={onBodyChange} schema={bodySchema} spec={spec} />
+            <div className="flex-1 min-h-0 flex flex-col">
+              <div className="flex-1 min-h-0">
+                <JsonEditor
+                  value={body}
+                  onChange={onBodyChange}
+                  schema={bodySchema}
+                  spec={spec}
+                  onValidation={setValidation}
+                  editorViewRef={editorViewRef}
+                />
+              </div>
+              {bodySchema && validation && (
+                <ValidationStatusBar validation={validation} editorView={editorViewRef.current} />
+              )}
             </div>
           </div>
         )}
