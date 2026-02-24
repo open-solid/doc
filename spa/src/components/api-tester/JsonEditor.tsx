@@ -99,7 +99,7 @@ export function JsonEditor({ value, onChange }: JsonEditorProps) {
   return (
     <div className="h-full [&_.cm-editor]:!h-full [&_.cm-editor]:!outline-none [&_.cm-editor]:!text-xs [&_.cm-scroller]:!font-mono">
       <CodeMirror
-        value={value || '{}'}
+        value={value}
         onChange={onChange}
         extensions={extensions}
         theme="none"

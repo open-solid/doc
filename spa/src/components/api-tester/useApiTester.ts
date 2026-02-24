@@ -105,8 +105,6 @@ function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
   if (bodyEntry?.schema) {
     const resolved = resolveSchema(bodyEntry.schema, spec);
     body = JSON.stringify(generateExampleJson(resolved, spec), null, 2);
-  } else if (METHODS_WITH_BODY.has(endpoint.method.toUpperCase())) {
-    body = '{}';
   }
 
   return {
