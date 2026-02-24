@@ -96,7 +96,7 @@ function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiS
   if (contentType) {
     headers.unshift(makePair('Content-Type', contentType, true));
   }
-  headers.push(makePair('Accept', contentType ?? detectResponseContentType(endpoint), true));
+  headers.push(makePair('Accept', detectResponseContentType(endpoint), true));
 
   let body = '';
   const bodyContent = endpoint.requestBody?.content;
