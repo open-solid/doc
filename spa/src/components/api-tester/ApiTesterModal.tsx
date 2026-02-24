@@ -222,6 +222,8 @@ function ApiTesterModalContent({ endpoint, spec, onClose }: ApiTesterModalProps)
               examples={tester.examples}
               selectedExampleKey={tester.selectedExampleKey}
               onExampleSelect={tester.selectExample}
+              bodySchema={tester.bodySchema}
+              spec={spec}
             />
           </div>
 

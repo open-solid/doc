@@ -1,14 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { keymap, EditorView } from '@codemirror/view';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { autocompletion } from '@codemirror/autocomplete';
+import type { CompletionContext } from '@codemirror/autocomplete';
 import { tags } from '@lezer/highlight';
 import { useTheme } from '../../hooks/useTheme';
+import type { SchemaObject, OpenApiSpec } from '../../openapi';
+import { jsonSchemaComplete } from '../../utils/jsonSchemaCompletion';
 
 interface JsonEditorProps {
   value: string;
   onChange: (value: string) => void;
+  schema?: SchemaObject | null;
+  spec?: OpenApiSpec | null;
 }
 
 const ctrlEnterPassthrough = keymap.of([
@@ -40,6 +46,32 @@ const lightTheme = EditorView.theme({
     backgroundColor: 'rgb(248 250 252)',    // slate-50
     borderRight: '1px solid rgb(226 232 240)', // slate-200
     color: 'rgb(148 163 184)',              // slate-400
+  },
+  '.cm-tooltip-autocomplete': {
+    backgroundColor: 'rgb(255 255 255)',
+    border: '1px solid rgb(226 232 240)',
+    borderRadius: '6px',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+    fontSize: '11px',
+  },
+  '.cm-tooltip-autocomplete ul li': {
+    padding: '2px 8px',
+  },
+  '.cm-tooltip-autocomplete ul li[aria-selected]': {
+    backgroundColor: 'rgb(224 231 255)',    // primary-100
+    color: 'rgb(67 56 202)',                // primary-700
+  },
+  '.cm-completionDetail': {
+    color: 'rgb(148 163 184)',              // slate-400
+    fontStyle: 'normal',
+    marginLeft: '8px',
+  },
+  '.cm-completionInfo': {
+    fontSize: '11px',
+    padding: '4px 8px',
+    backgroundColor: 'rgb(255 255 255)',
+    border: '1px solid rgb(226 232 240)',
+    borderRadius: '6px',
   },
 }, { dark: false });
 
@@ -75,6 +107,32 @@ const darkTheme = EditorView.theme({
     borderRight: '1px solid rgb(51 65 85 / 0.5)', // slate-700/50
     color: 'rgb(71 85 105)',                   // slate-600
   },
+  '.cm-tooltip-autocomplete': {
+    backgroundColor: 'rgb(30 41 59)',          // slate-800
+    border: '1px solid rgb(51 65 85)',         // slate-700
+    borderRadius: '6px',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3)',
+    fontSize: '11px',
+  },
+  '.cm-tooltip-autocomplete ul li': {
+    padding: '2px 8px',
+  },
+  '.cm-tooltip-autocomplete ul li[aria-selected]': {
+    backgroundColor: 'rgb(55 48 163 / 0.4)',   // primary-800/40
+    color: 'rgb(165 180 252)',                  // primary-300
+  },
+  '.cm-completionDetail': {
+    color: 'rgb(100 116 139)',                 // slate-500
+    fontStyle: 'normal',
+    marginLeft: '8px',
+  },
+  '.cm-completionInfo': {
+    fontSize: '11px',
+    padding: '4px 8px',
+    backgroundColor: 'rgb(30 41 59)',          // slate-800
+    border: '1px solid rgb(51 65 85)',         // slate-700
+    borderRadius: '6px',
+  },
 }, { dark: true });
 
 const darkHighlight = HighlightStyle.define([
@@ -86,15 +144,25 @@ const darkHighlight = HighlightStyle.define([
   { tag: tags.punctuation, color: 'rgb(148 163 184)' },   // slate-400
 ]);
 
-export function JsonEditor({ value, onChange }: JsonEditorProps) {
+export function JsonEditor({ value, onChange, schema, spec }: JsonEditorProps) {
   const { isDark } = useTheme();
+
+  const schemaRef = useRef(schema);
+  const specRef = useRef(spec);
+  schemaRef.current = schema;
+  specRef.current = spec;
+
+  const completionSource = useCallback((ctx: CompletionContext) => {
+    return jsonSchemaComplete(ctx, schemaRef.current, specRef.current);
+  }, []);
 
   const extensions = useMemo(() => [
     json(),
     ctrlEnterPassthrough,
     isDark ? darkTheme : lightTheme,
     syntaxHighlighting(isDark ? darkHighlight : lightHighlight),
-  ], [isDark]);
+    autocompletion({ override: [completionSource], activateOnTyping: true }),
+  ], [isDark, completionSource]);
 
   return (
     <div className="h-full [&_.cm-editor]:!h-full [&_.cm-editor]:!outline-none [&_.cm-editor]:!text-xs [&_.cm-scroller]:!font-mono">
@@ -108,6 +176,8 @@ export function JsonEditor({ value, onChange }: JsonEditorProps) {
           lineNumbers: false,
           foldGutter: false,
           highlightActiveLine: false,
+          completionKeymap: false,
+          autocompletion: false,
         }}
       />
     </div>

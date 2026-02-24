@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { KeyValuePair } from './useApiTester';
 import type { NamedExample } from '../../utils/schema';
+import type { SchemaObject, OpenApiSpec } from '../../openapi';
 import { KeyValueEditor } from './KeyValueEditor';
 import { JsonEditor } from './JsonEditor';
 import { ExampleSelector } from './ExampleSelector';
@@ -36,6 +37,8 @@ interface RequestBuilderProps {
   examples: NamedExample[];
   selectedExampleKey: string | null;
   onExampleSelect: (example: NamedExample) => void;
+  bodySchema: SchemaObject | null;
+  spec: OpenApiSpec;
 }
 
 type Tab = 'body' | 'params' | 'headers';
@@ -59,6 +62,8 @@ export function RequestBuilder({
   examples,
   selectedExampleKey,
   onExampleSelect,
+  bodySchema,
+  spec,
 }: RequestBuilderProps) {
   const showBody = METHODS_WITH_BODY.has(method);
   const [activeTab, setActiveTab] = useState<Tab>(showBody ? 'body' : 'params');
@@ -162,7 +167,7 @@ export function RequestBuilder({
               </div>
             )}
             <div className="flex-1 min-h-0">
-              <JsonEditor value={body} onChange={onBodyChange} />
+              <JsonEditor value={body} onChange={onBodyChange} schema={bodySchema} spec={spec} />
             </div>
           </div>
         )}

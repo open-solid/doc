@@ -79,6 +79,23 @@ export function getRequestBodyExamples(spec: OpenApiSpec, path: string, method: 
   return [];
 }
 
+export function getRequestBodySchema(
+  spec: OpenApiSpec, path: string, method: string
+): SchemaObject | null {
+  const operation = spec.paths[path]?.[method.toLowerCase() as HttpMethod];
+  if (!operation?.requestBody?.content) return null;
+
+  const content = operation.requestBody.content;
+  for (const mediaType of JSON_MEDIA_TYPES) {
+    const entry = content[mediaType];
+    if (entry?.schema) {
+      return resolveSchema(entry.schema, spec);
+    }
+  }
+
+  return null;
+}
+
 export function resolveSchema(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
   if (schema.$ref) {
     const refPath = schema.$ref.replace('#/components/schemas/', '');

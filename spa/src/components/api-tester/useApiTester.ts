@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Endpoint, OpenApiSpec } from '../../openapi';
-import { generateExampleJson, resolveSchema, compilePathPatterns, matchUrlToPath, getRequestBodyExamples } from '../../utils/schema';
+import { generateExampleJson, resolveSchema, compilePathPatterns, matchUrlToPath, getRequestBodyExamples, getRequestBodySchema } from '../../utils/schema';
 import type { NamedExample } from '../../utils/schema';
+import type { SchemaObject } from '../../openapi';
 
 const METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH']);
 
@@ -194,6 +195,7 @@ export interface UseApiTesterReturn {
   examples: NamedExample[];
   selectedExampleKey: string | null;
   selectExample: (example: NamedExample) => void;
+  bodySchema: SchemaObject | null;
 }
 
 export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTesterReturn {
@@ -344,6 +346,12 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
     return getRequestBodyExamples(spec, matchedPath, request.method);
   }, [request.url, request.method, baseUrl, compiledPatterns, spec]);
 
+  const bodySchema = useMemo(() => {
+    const matchedPath = matchUrlToPath(request.url, baseUrl, compiledPatterns);
+    if (!matchedPath) return null;
+    return getRequestBodySchema(spec, matchedPath, request.method);
+  }, [request.url, request.method, baseUrl, compiledPatterns, spec]);
+
   // Clear selection when examples change and the selected key is no longer available
   useEffect(() => {
     if (selectedExampleKey && !examples.some(e => e.key === selectedExampleKey)) {
@@ -386,5 +394,6 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
     examples,
     selectedExampleKey,
     selectExample,
+    bodySchema,
   };
 }
