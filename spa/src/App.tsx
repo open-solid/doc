@@ -73,7 +73,7 @@ function MainContent() {
   }
 
   if (error || !data) {
-    return <EmptyState error={error ?? 'Failed to load project data.'} />;
+    return <EmptyState error={error ?? 'Failed to load documentation data.'} />;
   }
 
   if (view.type === 'module') {

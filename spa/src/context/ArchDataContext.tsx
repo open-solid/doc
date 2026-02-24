@@ -16,7 +16,7 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       const res = await fetch(config.archJsonUrl);
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        const message = body?.error ?? `Failed to load project data (${res.status}).`;
+        const message = body?.error ?? `Failed to load documentation data (${res.status}).`;
         setData(null);
         dataRef.current = null;
         setError(message);
@@ -27,7 +27,7 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       dataRef.current = json;
       setError(null);
     } catch {
-      setError('Failed to load project data.');
+      setError('Failed to load documentation data.');
     } finally {
       setLoading(false);
     }
@@ -42,13 +42,13 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       const res = await fetch(config.archJsonUpdateUrl, { method: 'POST' });
       const result = await res.json();
       if (result.success) {
-        setToastMessage({ text: 'Project data updated successfully!', success: true });
+        setToastMessage({ text: 'documentation data updated successfully!', success: true });
         await fetchData();
       } else {
-        setToastMessage({ text: 'Failed to update project data.', success: false });
+        setToastMessage({ text: 'Failed to update documentation data.', success: false });
       }
     } catch {
-      setToastMessage({ text: 'Error updating project data.', success: false });
+      setToastMessage({ text: 'Error updating documentation data.', success: false });
     }
   }, [config.archJsonUpdateUrl, fetchData]);
 
