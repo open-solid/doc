@@ -60,8 +60,8 @@ export function jsonSchemaComplete(
 }
 
 export interface FormatValueInfo {
-  /** The schema format (e.g. 'uuid', 'date', 'date-time') */
-  format: 'uuid' | 'date' | 'date-time';
+  /** The schema format (e.g. 'uuid', 'date', 'date-time', 'time') */
+  format: 'uuid' | 'date' | 'date-time' | 'time';
   /** Start of the string content (after opening quote) */
   from: number;
   /** End of the string content (before closing quote) */
@@ -95,7 +95,7 @@ export function getFormatAtCursor(
   const resolved = mergeComposite(resolveSchema(propSchema, spec), spec);
   const format = resolved.format;
 
-  if (format !== 'uuid' && format !== 'date' && format !== 'date-time') return null;
+  if (format !== 'uuid' && format !== 'date' && format !== 'date-time' && format !== 'time') return null;
 
   return { format, from: info.from, to: info.to };
 }
@@ -142,6 +142,20 @@ export function jsonSchemaValueComplete(
         label: `Now (${now})`,
         type: 'text',
         detail: 'date-time',
+        apply: (view, _completion, from, to) => {
+          view.dispatch({ changes: { from, to, insert: now } });
+        },
+      });
+      break;
+    }
+    case 'time': {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const d = new Date();
+      const now = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      options.push({
+        label: `Now (${now})`,
+        type: 'text',
+        detail: 'time',
         apply: (view, _completion, from, to) => {
           view.dispatch({ changes: { from, to, insert: now } });
         },

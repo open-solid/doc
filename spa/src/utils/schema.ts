@@ -158,6 +158,7 @@ export function generateExampleJson(schema: SchemaObject, spec: OpenApiSpec, dep
       switch (resolved.format) {
         case 'date-time': return '2024-01-15T09:30:00Z';
         case 'date': return '2024-01-15';
+        case 'time': return '09:30:00';
         case 'email': return 'user@example.com';
         case 'uuid': return '550e8400-e29b-41d4-a716-446655440000';
         case 'uri': return 'https://example.com';

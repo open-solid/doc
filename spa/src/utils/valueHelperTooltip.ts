@@ -103,6 +103,16 @@ function createTooltipDom(
       const input = document.createElement('input');
       input.type = 'date';
       input.className = 'cm-value-helper-input';
+
+      // Preset with the current value if it's a valid date
+      const dateInfo = getFormatAtCursor(view.state, view.state.selection.main.head, schemaRef.current, specRef.current);
+      if (dateInfo) {
+        const current = view.state.sliceDoc(dateInfo.from, dateInfo.to);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(current) && !isNaN(new Date(current + 'T00:00:00').getTime())) {
+          input.value = current;
+        }
+      }
+
       input.addEventListener('change', () => {
         if (input.value) {
           replaceValue(view, schemaRef, specRef, input.value);
@@ -128,6 +138,19 @@ function createTooltipDom(
       input.type = 'datetime-local';
       input.step = '1';
       input.className = 'cm-value-helper-input';
+
+      // Preset with the current value if it's a valid date-time
+      const dtInfo = getFormatAtCursor(view.state, view.state.selection.main.head, schemaRef.current, specRef.current);
+      if (dtInfo) {
+        const current = view.state.sliceDoc(dtInfo.from, dtInfo.to);
+        const parsed = new Date(current);
+        if (!isNaN(parsed.getTime())) {
+          // Convert to local datetime-local format (YYYY-MM-DDThh:mm:ss)
+          const pad = (n: number) => String(n).padStart(2, '0');
+          input.value = `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}T${pad(parsed.getHours())}:${pad(parsed.getMinutes())}:${pad(parsed.getSeconds())}`;
+        }
+      }
+
       input.addEventListener('change', () => {
         if (input.value) {
           // Convert local datetime-local value to ISO UTC string
@@ -143,6 +166,43 @@ function createTooltipDom(
       btn.addEventListener('mousedown', (e) => {
         e.preventDefault();
         replaceValue(view, schemaRef, specRef, new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'));
+      });
+      container.appendChild(btn);
+      break;
+    }
+
+    case 'time': {
+      label.textContent = 'Time';
+
+      const input = document.createElement('input');
+      input.type = 'time';
+      input.step = '1';
+      input.className = 'cm-value-helper-input';
+
+      // Preset with the current value if it's a valid time (HH:mm:ss or HH:mm)
+      const timeInfo = getFormatAtCursor(view.state, view.state.selection.main.head, schemaRef.current, specRef.current);
+      if (timeInfo) {
+        const current = view.state.sliceDoc(timeInfo.from, timeInfo.to);
+        if (/^\d{2}:\d{2}(:\d{2})?$/.test(current)) {
+          input.value = current;
+        }
+      }
+
+      input.addEventListener('change', () => {
+        if (input.value) {
+          replaceValue(view, schemaRef, specRef, input.value);
+        }
+      });
+      container.appendChild(input);
+
+      const btn = document.createElement('button');
+      btn.className = 'cm-value-helper-btn';
+      btn.textContent = 'Now';
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const d = new Date();
+        replaceValue(view, schemaRef, specRef, `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`);
       });
       container.appendChild(btn);
       break;
