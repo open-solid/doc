@@ -4,6 +4,7 @@ import type { SyntaxNode } from '@lezer/common';
 import { syntaxTree } from '@codemirror/language';
 import type { SchemaObject, OpenApiSpec } from '../openapi';
 import { resolveSchema } from './schema';
+import { uuidv7 } from './uuidv7';
 
 /**
  * CodeMirror completion source that suggests JSON property names based on a JSON Schema.
@@ -55,6 +56,158 @@ export function jsonSchemaComplete(
     from: cursorInfo.from,
     to: cursorInfo.to,
     options,
+  };
+}
+
+export interface FormatValueInfo {
+  /** The schema format (e.g. 'uuid', 'date', 'date-time') */
+  format: 'uuid' | 'date' | 'date-time';
+  /** Start of the string content (after opening quote) */
+  from: number;
+  /** End of the string content (before closing quote) */
+  to: number;
+}
+
+/**
+ * Checks if the cursor is inside a property value string whose schema has a known format.
+ * Shared by value completions and the tooltip extension.
+ */
+export function getFormatAtCursor(
+  state: EditorState,
+  pos: number,
+  schema: SchemaObject | null | undefined,
+  spec: OpenApiSpec | null | undefined,
+): FormatValueInfo | null {
+  if (!schema || !spec) return null;
+
+  const tree = syntaxTree(state);
+  const node = tree.resolveInner(pos, -1);
+
+  const info = getValueInfoAtCursor(state, pos, node);
+  if (!info) return null;
+
+  const parentSchema = getSchemaAtPath(schema, spec, info.path);
+  if (!parentSchema?.properties) return null;
+
+  const propSchema = parentSchema.properties[info.propertyName];
+  if (!propSchema) return null;
+
+  const resolved = mergeComposite(resolveSchema(propSchema, spec), spec);
+  const format = resolved.format;
+
+  if (format !== 'uuid' && format !== 'date' && format !== 'date-time') return null;
+
+  return { format, from: info.from, to: info.to };
+}
+
+/**
+ * CodeMirror completion source that suggests values for properties with special formats.
+ */
+export function jsonSchemaValueComplete(
+  context: CompletionContext,
+  schema: SchemaObject | null | undefined,
+  spec: OpenApiSpec | null | undefined,
+): CompletionResult | null {
+  const info = getFormatAtCursor(context.state, context.pos, schema, spec);
+  if (!info) return null;
+
+  const options: Completion[] = [];
+
+  switch (info.format) {
+    case 'uuid':
+      options.push({
+        label: 'Generate UUIDv7',
+        type: 'text',
+        detail: 'uuid',
+        apply: (view, _completion, from, to) => {
+          view.dispatch({ changes: { from, to, insert: uuidv7() } });
+        },
+      });
+      break;
+    case 'date': {
+      const today = new Date().toISOString().slice(0, 10);
+      options.push({
+        label: `Today (${today})`,
+        type: 'text',
+        detail: 'date',
+        apply: (view, _completion, from, to) => {
+          view.dispatch({ changes: { from, to, insert: today } });
+        },
+      });
+      break;
+    }
+    case 'date-time': {
+      const now = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+      options.push({
+        label: `Now (${now})`,
+        type: 'text',
+        detail: 'date-time',
+        apply: (view, _completion, from, to) => {
+          view.dispatch({ changes: { from, to, insert: now } });
+        },
+      });
+      break;
+    }
+  }
+
+  if (options.length === 0) return null;
+
+  return {
+    from: info.from,
+    to: info.to,
+    options,
+  };
+}
+
+interface ValueInfo {
+  /** The property name this value belongs to */
+  propertyName: string;
+  /** JSON path to the parent object */
+  path: string[];
+  /** Start of the string content (after opening quote) */
+  from: number;
+  /** End of the string content (before closing quote) */
+  to: number;
+}
+
+/**
+ * Detects when the cursor is inside a property value string (not a property name).
+ * A value string is a String node that is NOT the first child of a Property.
+ */
+function getValueInfoAtCursor(
+  state: EditorState,
+  pos: number,
+  node: SyntaxNode,
+): ValueInfo | null {
+  // Must be inside a String node
+  if (node.name !== 'String') return null;
+
+  const parent = node.parent;
+  if (!parent || parent.name !== 'Property') return null;
+
+  // Must NOT be the property name (first child)
+  if (parent.firstChild?.from === node.from) return null;
+
+  // Get the property name from the first child
+  const nameNode = parent.firstChild;
+  if (!nameNode || (nameNode.name !== 'PropertyName' && nameNode.name !== 'String')) return null;
+
+  const propertyName = state.sliceDoc(nameNode.from, nameNode.to).replace(/^"|"$/g, '');
+
+  const content = state.sliceDoc(node.from, node.to);
+  const innerFrom = node.from + (content.startsWith('"') ? 1 : 0);
+  const innerTo = node.to - (content.endsWith('"') ? 1 : 0);
+
+  // Cursor must be within the string
+  if (pos < innerFrom || pos > innerTo) return null;
+
+  const objectNode = findParentObject(parent);
+
+  return {
+    propertyName,
+    path: buildJsonPath(state, objectNode),
+    from: innerFrom,
+    to: innerTo,
   };
 }
 
@@ -217,6 +370,9 @@ function mergeComposite(schema: SchemaObject, spec: OpenApiSpec): SchemaObject {
       if (resolvedSub.required) {
         mergedRequired.push(...resolvedSub.required);
       }
+      // Inherit scalar fields (type, format, etc.) from sub-schemas
+      if (resolvedSub.type && !merged.type) merged = { ...merged, type: resolvedSub.type };
+      if (resolvedSub.format && !merged.format) merged = { ...merged, format: resolvedSub.format };
     }
 
     merged = { ...merged, properties: mergedProperties };

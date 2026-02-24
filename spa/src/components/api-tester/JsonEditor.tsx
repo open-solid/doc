@@ -8,7 +8,8 @@ import type { CompletionContext } from '@codemirror/autocomplete';
 import { tags } from '@lezer/highlight';
 import { useTheme } from '../../hooks/useTheme';
 import type { SchemaObject, OpenApiSpec } from '../../openapi';
-import { jsonSchemaComplete } from '../../utils/jsonSchemaCompletion';
+import { jsonSchemaComplete, jsonSchemaValueComplete } from '../../utils/jsonSchemaCompletion';
+import { valueHelperTooltipExtension } from '../../utils/valueHelperTooltip';
 
 interface JsonEditorProps {
   value: string;
@@ -73,6 +74,46 @@ const lightTheme = EditorView.theme({
     border: '1px solid rgb(226 232 240)',
     borderRadius: '6px',
   },
+  '.cm-value-helper': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '3px 8px',
+    backgroundColor: 'rgb(255 255 255)',
+    border: '1px solid rgb(226 232 240)',
+    borderRadius: '6px',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.1)',
+    fontSize: '11px',
+  },
+  '.cm-value-helper-label': {
+    color: 'rgb(100 116 139)',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    fontSize: '10px',
+    letterSpacing: '0.05em',
+  },
+  '.cm-value-helper-btn': {
+    padding: '1px 8px',
+    border: '1px solid rgb(199 210 254)',
+    borderRadius: '4px',
+    backgroundColor: 'transparent',
+    color: 'rgb(67 56 202)',
+    fontSize: '11px',
+    cursor: 'pointer',
+    lineHeight: '1.4',
+    '&:hover': {
+      backgroundColor: 'rgb(238 242 255)',
+    },
+  },
+  '.cm-value-helper-input': {
+    padding: '1px 4px',
+    border: '1px solid rgb(226 232 240)',
+    borderRadius: '4px',
+    backgroundColor: 'rgb(248 250 252)',
+    color: 'rgb(51 65 85)',
+    fontSize: '11px',
+    lineHeight: '1.4',
+  },
 }, { dark: false });
 
 const lightHighlight = HighlightStyle.define([
@@ -133,6 +174,47 @@ const darkTheme = EditorView.theme({
     border: '1px solid rgb(51 65 85)',         // slate-700
     borderRadius: '6px',
   },
+  '.cm-value-helper': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '3px 8px',
+    backgroundColor: 'rgb(30 41 59)',           // slate-800
+    border: '1px solid rgb(51 65 85)',          // slate-700
+    borderRadius: '6px',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.3)',
+    fontSize: '11px',
+  },
+  '.cm-value-helper-label': {
+    color: 'rgb(100 116 139)',                  // slate-500
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    fontSize: '10px',
+    letterSpacing: '0.05em',
+  },
+  '.cm-value-helper-btn': {
+    padding: '1px 8px',
+    border: '1px solid rgb(55 48 163)',         // primary-800
+    borderRadius: '4px',
+    backgroundColor: 'transparent',
+    color: 'rgb(165 180 252)',                  // primary-300
+    fontSize: '11px',
+    cursor: 'pointer',
+    lineHeight: '1.4',
+    '&:hover': {
+      backgroundColor: 'rgb(55 48 163 / 0.3)',
+    },
+  },
+  '.cm-value-helper-input': {
+    padding: '1px 4px',
+    border: '1px solid rgb(51 65 85)',          // slate-700
+    borderRadius: '4px',
+    backgroundColor: 'rgb(15 23 42)',           // slate-900
+    color: 'rgb(203 213 225)',                  // slate-300
+    fontSize: '11px',
+    lineHeight: '1.4',
+    colorScheme: 'dark',
+  },
 }, { dark: true });
 
 const darkHighlight = HighlightStyle.define([
@@ -153,8 +235,14 @@ export function JsonEditor({ value, onChange, schema, spec }: JsonEditorProps) {
   specRef.current = spec;
 
   const completionSource = useCallback((ctx: CompletionContext) => {
-    return jsonSchemaComplete(ctx, schemaRef.current, specRef.current);
+    return jsonSchemaComplete(ctx, schemaRef.current, specRef.current)
+        ?? jsonSchemaValueComplete(ctx, schemaRef.current, specRef.current);
   }, []);
+
+  const tooltipExt = useMemo(
+    () => valueHelperTooltipExtension(schemaRef, specRef),
+    [],
+  );
 
   const extensions = useMemo(() => [
     json(),
@@ -162,7 +250,8 @@ export function JsonEditor({ value, onChange, schema, spec }: JsonEditorProps) {
     isDark ? darkTheme : lightTheme,
     syntaxHighlighting(isDark ? darkHighlight : lightHighlight),
     autocompletion({ override: [completionSource], activateOnTyping: true }),
-  ], [isDark, completionSource]);
+    tooltipExt,
+  ], [isDark, completionSource, tooltipExt]);
 
   return (
     <div className="h-full [&_.cm-editor]:!h-full [&_.cm-editor]:!outline-none [&_.cm-editor]:!text-xs [&_.cm-scroller]:!font-mono">
