@@ -4,13 +4,46 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useTheme } from '../../hooks/useTheme';
+import { useNavigation } from '../../hooks/useNavigation';
+import { useDocs } from '../../hooks/useDocs';
 import { MermaidDiagram } from './MermaidDiagram';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
+function resolveDocPath(currentDocPath: string, href: string): string {
+  const lastSlash = currentDocPath.lastIndexOf('/');
+  const currentDir = lastSlash >= 0 ? currentDocPath.substring(0, lastSlash) : '';
+  const baseParts = currentDir ? currentDir.split('/') : [];
+
+  for (const part of href.split('/')) {
+    if (part === '..') {
+      baseParts.pop();
+    } else if (part !== '.' && part !== '') {
+      baseParts.push(part);
+    }
+  }
+
+  return baseParts.join('/');
+}
+
+function collectAllPaths(items: import('../../types').DocsNavItem[]): Set<string> {
+  const paths = new Set<string>();
+  for (const item of items) {
+    if (item.path) paths.add(item.path);
+    if (item.items.length > 0) {
+      for (const p of collectAllPaths(item.items)) paths.add(p);
+    }
+  }
+  return paths;
+}
+
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  const { view, navigate } = useNavigation();
+  const { navigation } = useDocs();
+  const knownPaths = collectAllPaths(navigation);
+
   return (
     <div className="prose-doc max-w-4xl mt-10">
       <Markdown
@@ -48,11 +81,38 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
           li: ({ children }) => (
             <li className="leading-relaxed">{children}</li>
           ),
-          a: ({ href, children }) => (
-            <a href={href} className="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300" target="_blank" rel="noopener noreferrer">
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) => {
+            const linkClass = "text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300";
+
+            if (!href || /^(?:https?:|\/\/|mailto:|tel:)/.test(href)) {
+              return <a href={href} className={linkClass} target="_blank" rel="noopener noreferrer">{children}</a>;
+            }
+
+            if (href.startsWith('#')) {
+              return <a href={href} className={linkClass}>{children}</a>;
+            }
+
+            const [linkPath, anchor] = href.split('#');
+            const currentDocPath = view.type === 'doc' ? view.path : '';
+            const resolved = resolveDocPath(currentDocPath, linkPath!);
+
+            if (!knownPaths.has(resolved) && !/\.md$/.test(linkPath!)) {
+              return <a href={href} className={linkClass} target="_blank" rel="noopener noreferrer">{children}</a>;
+            }
+
+            return (
+              <a
+                href={href}
+                className={linkClass}
+                onClick={e => {
+                  e.preventDefault();
+                  navigate({ type: 'doc', path: resolved, anchor: anchor || undefined });
+                }}
+              >
+                {children}
+              </a>
+            );
+          },
           code: CodeBlock,
           pre: ({ children }) => <>{children}</>,
           blockquote: ({ children }) => (

@@ -4,7 +4,9 @@ Use the Club API to access contacts, conversations, group messages, and more and
 
 ## Getting started
 
-To get started, create a new application in your developer settings, then read about how to make requests for the resources you need to access using our HTTP APIs or dedicated client SDKs. When your integration is ready to go live, publish it to our integrations directory to reach the Club community.
+To get started, follow the [Quickstart guide](./quickstart.md) to create a new application in your developer settings, then read about how to make requests for the resources you need to access using our HTTP APIs or dedicated client SDKs. When your integration is ready to go live, publish it to our integrations directory to reach the Club community.
+
+For details on the domain model, see the [Property module](./specs/catalog/property/domain/models.md) and its [business rules](./specs/catalog/property/domain/business-rules.md).
 
 | Field1 | Field2 | Description |
 | --- | --- | --- |
