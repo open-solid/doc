@@ -84,6 +84,13 @@ export function RequestBuilder({
     }
   }, [method, activeTab, hasPathParams]);
 
+  // When path params disappear, switch away from path tab
+  useEffect(() => {
+    if (activeTab === 'path' && !hasPathParams) {
+      setActiveTab('params');
+    }
+  }, [activeTab, hasPathParams]);
+
   // Resize select to fit the selected method text
   useEffect(() => {
     if (measureRef.current && selectRef.current) {

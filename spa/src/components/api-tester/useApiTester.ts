@@ -75,6 +75,19 @@ function detectResponseContentType(endpoint: Endpoint): string {
   return 'application/json';
 }
 
+function extractPlaceholders(url: string): string[] {
+  const names: string[] = [];
+  const pattern = /\{([^}]+)\}/g;
+  let match;
+  while ((match = pattern.exec(url)) !== null) {
+    const name = match[1]!;
+    if (!names.includes(name)) {
+      names.push(name);
+    }
+  }
+  return names;
+}
+
 function buildInitialRequest(endpoint: Endpoint, baseUrl: string, spec: OpenApiSpec): RequestState {
   const origin = baseUrl && baseUrl !== '/' ? baseUrl.replace(/\/$/, '') : window.location.origin;
   const url = `${origin}${endpoint.path}`;
@@ -234,21 +247,19 @@ export function useApiTester(endpoint: Endpoint, spec: OpenApiSpec): UseApiTeste
   }, [baseUrl, compiledPatterns, spec]);
 
   const setUrl = useCallback((url: string) => {
-    setRequest(prev => ({ ...prev, url }));
+    setRequest(prev => {
+      const newNames = extractPlaceholders(url);
+      const existing = new Map(prev.pathParams.map(p => [p.key, p]));
+      const pathParams = newNames.map(name =>
+        existing.get(name) ?? makePair(name, '', true)
+      );
+      return { ...prev, url, pathParams };
+    });
   }, []);
 
   const setPathParams = useCallback((pathParams: KeyValuePair[]) => {
-    setRequest(prev => {
-      const origin = baseUrl && baseUrl !== '/' ? baseUrl.replace(/\/$/, '') : window.location.origin;
-      let url = `${origin}${endpoint.path}`;
-      for (const p of pathParams) {
-        if (p.value) {
-          url = url.replace(`{${p.key}}`, p.value);
-        }
-      }
-      return { ...prev, pathParams, url };
-    });
-  }, [baseUrl, endpoint.path]);
+    setRequest(prev => ({ ...prev, pathParams }));
+  }, []);
 
   const setQueryParams = useCallback((queryParams: KeyValuePair[]) => {
     setRequest(prev => ({ ...prev, queryParams }));
