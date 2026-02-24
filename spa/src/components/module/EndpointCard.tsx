@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import type { Endpoint, OpenApiSpec, SchemaObject } from '../../openapi';
-import { generateCurl } from '../../utils/curl';
 import { generateExampleJson, resolveSchema } from '../../utils/schema';
 import { CodeBlock } from '../CodeBlock';
 import { ApiTesterModal } from '../api-tester/ApiTesterModal';
@@ -334,9 +333,18 @@ interface ResponseData {
 }
 
 export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
-  const baseUrl = spec.servers?.[0]?.url ?? '';
-
-  const curlCommand = useMemo(() => generateCurl(endpoint, baseUrl, spec), [endpoint, baseUrl, spec]);
+  const { requestBodyJson, requestContentType } = useMemo(() => {
+    const content = endpoint.requestBody?.content;
+    const contentTypes = ['application/json', 'application/ld+json', 'application/merge-patch+json'] as const;
+    for (const ct of contentTypes) {
+      const entry = content?.[ct];
+      if (entry?.schema) {
+        const resolved = resolveSchema(entry.schema, spec);
+        return { requestBodyJson: JSON.stringify(generateExampleJson(resolved, spec), null, 2), requestContentType: ct };
+      }
+    }
+    return { requestBodyJson: null, requestContentType: null };
+  }, [endpoint, spec]);
 
   const pathParams = useMemo(() =>
     endpoint.parameters
@@ -469,7 +477,14 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
         <div className="p-6 bg-slate-50 dark:bg-slate-900/50">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Request</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-300">Request</h4>
+                {requestContentType && (
+                  <span className="text-[11px] font-semibold px-1.5 rounded-md bg-slate-800 dark:bg-slate-300 text-white dark:text-slate-900">
+                    {requestContentType}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -486,7 +501,7 @@ export function EndpointCard({ endpoint, spec }: EndpointCardProps) {
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{endpoint.path}</span>
             </div>
-            <CodeBlock code={curlCommand} language="bash" />
+            {requestBodyJson && <CodeBlock code={requestBodyJson} language="json" />}
           </div>
 
           <div>
