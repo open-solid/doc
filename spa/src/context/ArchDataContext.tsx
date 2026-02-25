@@ -26,6 +26,7 @@ export function ArchDataProvider({ children }: { children: ReactNode }) {
       setData(json);
       dataRef.current = json;
       setError(null);
+      document.title = `${json.meta.project} — ${json.meta.company}`;
     } catch {
       setError('Failed to load documentation data.');
     } finally {
