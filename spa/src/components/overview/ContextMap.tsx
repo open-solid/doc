@@ -51,12 +51,13 @@ export function ContextMap() {
         const sourceKey = `${ctx.name}/${mod.name}`;
         (mod.externalCalls ?? []).forEach(call => {
           const targetKey = `${call.targetContext}/${call.targetModule}`;
-          if (modIndex[targetKey] !== undefined) {
+          const type = call.type === 'query' ? 'query' : 'command';
+          if (modIndex[targetKey] !== undefined && !rels.some(r => r.from === sourceKey && r.to === targetKey && r.type === type)) {
             rels.push({
               from: sourceKey,
               to: targetKey,
-              type: call.type === 'query' ? 'query' : 'command',
-              label: call.type === 'query' ? 'Query Bus' : 'Command Bus',
+              type,
+              label: type === 'query' ? 'Query Bus' : 'Command Bus',
             });
           }
         });
