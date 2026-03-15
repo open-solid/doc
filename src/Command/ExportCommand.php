@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenSolid\Doc\Command;
 
+use OpenSolid\Core\CoreBundle;
 use OpenSolid\Doc\DocExporter;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -32,6 +34,10 @@ final readonly class ExportCommand
         #[Option('Output file path', 'output', 'o')] string $outputFile = 'arch.json',
         #[Option('Pretty print the JSON output', 'p')] bool $pretty = true,
     ): int {
+        if (!class_exists(CoreBundle::class)) {
+            throw new InvalidArgumentException('OpenSolid CoreBundle is not available. Please install "open-solid/core" to use this command.');
+        }
+
         $io->title('Architecture Export');
 
         $srcDir = $this->projectDir.'/src';
