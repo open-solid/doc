@@ -2,7 +2,7 @@
 
 namespace OpenSolid\Doc\Controller;
 
-use ApiPlatform\OpenApi\Command\OpenApiCommand;
+use OpenSolid\Api\Command\GenerateOpenApiCommand;
 use OpenSolid\Doc\Command\ExportCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -17,7 +17,7 @@ final readonly class DocController
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private ExportCommand $exportCommand,
-        private ?OpenApiCommand $openApiCommand,
+        private ?GenerateOpenApiCommand $openApiCommand,
         private string $archJsonPath,
         private string $openapiJsonPath,
         private string $company,

@@ -87,7 +87,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(UrlGeneratorInterface::class),
             service('open_solid_doc.arch_export_command'),
-            service('api_platform.openapi.command')->nullOnInvalid(),
+            service('open_solid_api.command.generate')->nullOnInvalid(),
             param('kernel.project_dir').'/arch.json',
             param('kernel.project_dir').'/openapi.json',
             param('open_solid_doc.company'),
