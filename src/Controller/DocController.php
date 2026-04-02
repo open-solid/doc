@@ -95,10 +95,8 @@ final readonly class DocController
             );
         }
 
-        $exitCode = $this->openApiCommand->run(
-            new ArrayInput(['--output' => $this->openapiJsonPath]),
-            new NullOutput(),
-        );
+        $io = new SymfonyStyle(new ArrayInput([]), new NullOutput());
+        $exitCode = ($this->openApiCommand)($io, $this->openapiJsonPath);
 
         return new JsonResponse(['success' => 0 === $exitCode]);
     }
